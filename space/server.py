@@ -46,15 +46,17 @@ def wav_bytes(a, b):
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(AUDIO_SR); w.writeframes(seg.astype(np.int16).tobytes())
     return buf.getvalue()
 
+def warm():
+    # warm up the model and the aligner so the first check is fast
+    f = Follower(model, poem, 0); f.feed(np.random.randn(SR * 2).astype(np.float32) * 0.01); f.anchor = 0; f.step()
+    print('ready', flush=True)
+
 @app.on_event('startup')
 async def startup():
+    if os.environ.get('SKIP_STARTUP'): return       # the Space bootstrap calls load_audio()/warm() itself
     loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, load_audio)
-    # warm up the model and the aligner so the first check is fast
-    def warm():
-        f = Follower(model, poem, 0); f.feed(np.random.randn(SR * 2).astype(np.float32) * 0.01 + 0.0); f.anchor = 0; f.step()
     await loop.run_in_executor(None, warm)
-    print('ready', flush=True)
 
 # ------------------------------------------------------------ http
 @app.get('/')
