@@ -1,0 +1,6 @@
+fastapi==0.115.*
+uvicorn[standard]==0.32.*
+numpy<2.1
+onnxruntime>=1.20,<1.24
+numba==0.60.*
+huggingface_hub>=0.26

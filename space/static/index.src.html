@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مراجعة طيبة النشر</title>
+<meta name="theme-color" content="#0f3d26">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مراجعة الطيبة">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Kufi+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4efe3;--paper:#fffcf5;--ink:#1d140b;--muted:#6f604b;--line:#e3d7bd;--green:#0f3d26;--green-2:#17603b;--gold:#b5852c;--bad:#b3261e;--ok:#1d7a46;
+  --ui:'Noto Kufi Arabic',Tahoma,sans-serif;--verse:'Amiri','Traditional Arabic',serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:17px;line-height:1.7;padding:calc(14px + env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom))}
+main{max-width:640px;margin:0 auto}
+h1{font-family:var(--verse);font-size:30px;color:var(--green);text-align:center;margin:4px 0 2px}
+h2{font-size:16px;color:var(--muted);margin:26px 0 10px;font-weight:600}
+.where{text-align:center;font-size:18px;font-weight:600;margin:0 0 14px;color:var(--green-2)}
+button,select,input{font-family:inherit;font-size:inherit;color:inherit}
+.big{display:block;width:100%;min-height:150px;border:0;border-radius:28px;background:var(--green);color:#fff;font-size:30px;font-weight:700;
+  box-shadow:0 14px 34px rgba(15,61,38,.3);transition:background .25s,transform .12s;cursor:pointer;position:relative;overflow:hidden}
+.big:active{transform:scale(.98)}
+.big.listening{background:var(--bad)}
+.big.listening::after{content:"";position:absolute;inset:0;border-radius:inherit;animation:breathe 1.8s ease-in-out infinite;box-shadow:inset 0 0 0 0 rgba(255,255,255,.35)}
+.big.paused{background:var(--gold)}
+@keyframes breathe{50%{box-shadow:inset 0 0 0 14px rgba(255,255,255,.12)}}
+.big small{display:block;font-size:15px;font-weight:400;opacity:.85;margin-top:4px}
+.status{min-height:30px;text-align:center;font-size:16px;color:var(--muted);margin:12px 0 0}
+.verse{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin-top:14px;font-family:var(--verse);font-size:26px;line-height:2;text-align:center}
+.live{margin-top:14px;background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:12px 14px;text-align:center}
+.live .lv{font-weight:700;color:var(--green);font-size:16px}
+.dots{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin:10px 0 6px;direction:rtl}
+.dots i{width:14px;height:14px;border-radius:50%;background:#e3d7bd;transition:background .25s,transform .25s}
+.dots i.done{background:var(--ok)} .dots i.cur{background:var(--gold);transform:scale(1.25)} .dots i.err{background:var(--bad);transform:scale(1.25)}
+.dots .gap{width:16px}
+.heard{min-height:28px;font-family:var(--verse);font-size:19px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.verse .w.done{color:var(--ok)} .verse .w.err{color:var(--bad);text-decoration:underline}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{min-height:64px;border:2px solid var(--line);background:#fff;border-radius:18px;font-weight:600;padding:8px 10px;cursor:pointer}
+.btn:active{background:#f3ead6}
+.btn.wide{grid-column:1/-1}
+label.f{display:block;font-weight:600;margin:10px 0 6px}
+select,input[type=number]{width:100%;min-height:58px;border:2px solid var(--line);border-radius:16px;background:#fff;padding:8px 12px}
+fieldset{border:2px solid var(--line);border-radius:18px;padding:10px 12px 12px;margin:0 0 12px;background:#fff}
+legend{font-weight:600;padding:0 6px}
+.radio{display:flex;align-items:center;gap:10px;min-height:52px}
+.radio input{width:24px;height:24px;accent-color:var(--green)}
+.radio span small{display:block;color:var(--muted);font-size:13px;line-height:1.5}
+.check{display:flex;align-items:center;gap:10px;min-height:52px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:6px 12px;margin-bottom:12px}
+.check input{width:24px;height:24px;accent-color:var(--green)}
+.note{font-size:14px;color:var(--muted);background:#f8eed6;border-radius:14px;padding:10px 12px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>مراجعة طيبة النشر</h1>
+  <p class="where" id="where"></p>
+
+  <h2 class="sr-only">التسميع</h2>
+  <button class="big" id="main" type="button">ابدأ التسميع</button>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+  <div class="live" id="live" aria-hidden="true">
+    <div class="lv" id="liveVerse"></div>
+    <div class="dots" id="dots"></div>
+  </div>
+  <div class="verse hidden" id="verse" aria-hidden="true"></div>
+
+  <div class="grid" style="margin-top:16px">
+    <button class="btn" id="sayWord" type="button">أعد الكلمة الصحيحة</button>
+    <button class="btn" id="sayVerse" type="button">اسمع البيت الحالي</button>
+  </div>
+
+  <h2>مكان البدء</h2>
+  <div class="grid">
+    <button class="btn" id="prev" type="button">البيت السابق</button>
+    <button class="btn" id="next" type="button">البيت التالي</button>
+  </div>
+  <label class="f" for="secSel">الباب</label>
+  <select id="secSel"></select>
+  <label class="f" for="verseIn">رقم البيت، من ١ إلى ١٠١٥</label>
+  <div class="grid">
+    <input id="verseIn" type="number" min="1" max="1015" inputmode="numeric">
+    <button class="btn" id="goVerse" type="button">انتقل إلى البيت</button>
+  </div>
+  <div class="grid" style="margin-top:10px">
+    <button class="btn wide" id="weakBtn" type="button">راجع الأبيات التي أخطأت فيها</button>
+  </div>
+
+  <h2>الإعدادات</h2>
+  <fieldset>
+    <legend>متى يوقفك البرنامج</legend>
+    <label class="radio"><input type="radio" name="strict" value="strict"><span>عند أي شك<small>أدق، لكن قد يوقفك وأنت مصيب</small></span></label>
+    <label class="radio"><input type="radio" name="strict" value="normal"><span>عند الخطأ الواضح فقط<small>الموصى به</small></span></label>
+    <label class="radio"><input type="radio" name="strict" value="lenient"><span>عند الأخطاء الكبيرة فقط<small>أقل إيقافًا</small></span></label>
+  </fieldset>
+  <label class="check"><input type="checkbox" id="tickChk"><span>صوت خفيف بعد إتمام كل بيت</span></label>
+  <label class="check"><input type="checkbox" id="showChk"><span>إظهار نص البيت على الشاشة (للمرافق)</span></label>
+
+  <p class="note">الاستماع يتم على خادم خاص بالمراجعة. أول مرة في اليوم قد يحتاج دقيقة ليستيقظ.</p>
+</main>
+
+<script>
+const DATA = /*DATA*/null;
+const V = DATA.verses, N = V.length;
+
+/* ---------- chapters ---------- */
+const SECS=[];
+(function(){ const raw=DATA.sections; let parent='';
+  for(let i=0;i<raw.length;i++){ const s=raw[i], nx=raw[i+1]; const clean=s.t.replace(/[\s:]+$/,'');
+    if(nx && nx.f===s.f){ parent=clean.replace(/^ب[َ]?ابُ\s*/,''); if(/فَرْشِ/.test(clean)) parent=''; continue; }
+    const isFasl=/^ف[َُ]?ص/.test(clean); SECS.push({t:(isFasl&&parent?parent+' — ':'')+clean, f:s.f, to:nx?nx.f-1:N}); if(!isFasl) parent=''; } })();
+const DIAC=/[ؐ-ًؚ-ٰٟۖ-ۭـ‌‍‎‏]/g;
+function plain(s){ return s.replace(DIAC,''); }
+function secOf(n){ let r=SECS[0]; for(const s of SECS) if(s.f<=n) r=s; return r; }
+function secIdx(n){ let k=0; SECS.forEach((s,i)=>{ if(s.f<=n) k=i; }); return k; }
+
+/* ---------- words of the whole poem ---------- */
+function norm(w){ return (w||'').replace(DIAC,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ء/g,'').replace(/[^ء-ي]/g,''); }
+const W=[]; const verseFirst=new Array(N+2).fill(0);
+for(let n=1;n<=N;n++){ verseFirst[n]=W.length; let k=0;
+  V[n-1].forEach((hem,h)=>hem.split(/\s+/).filter(Boolean).forEach(disp=>{ const key=norm(disp);
+    if(key){ W.push({n,h,k,disp,key}); k++; } else if(W.length) W[W.length-1].disp+=' '+disp; })); }
+verseFirst[N+1]=W.length;
+function hemStart(i){ let j=i; while(j>0 && W[j-1].n===W[i].n && W[j-1].h===W[i].h) j--; return j; }
+
+function lev(a,b){ const m=a.length,n=b.length; if(!m) return n; if(!n) return m; let p=Array.from({length:n+1},(_,j)=>j), c=new Array(n+1);
+  for(let i=1;i<=m;i++){ c[0]=i; for(let j=1;j<=n;j++) c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); [p,c]=[c,p]; } return p[n]; }
+function sim(e,t){ if(e===t) return 1; const s=x=>x.replace(/^(و|ف)/,''); if(s(e)===s(t)) return .95; return 1-lev(e,t)/Math.max(e.length,t.length); }
+function joinSame(a,b,t){ if(Math.abs(a.length+b.length-t.length)>3) return false; return same(a+b,t) || same(a+b.replace(/^ا/,''),t) || same(a+b.replace(/^ال/,'ل'),t); }
+function same(e,t){ if(e===t) return true; if(e.length<=2) return false; const v=sim(e,t); return v>=(e.length<=4?.74:.67); }
+
+/* ---------- settings & storage ---------- */
+const store={ get(k,d){ try{ const v=localStorage.getItem('murajaa:'+k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem('murajaa:'+k,JSON.stringify(v)); }catch(e){} } };
+const settings=Object.assign({strict:'normal',tick:true,show:false,pos:1}, store.get('settings',{}));
+let weak=store.get('weak',{});   // verse -> times it stopped him
+function save(){ store.set('settings',settings); }
+
+/* ---------- UI refs ---------- */
+const $=id=>document.getElementById(id);
+const mainBtn=$('main'), statusEl=$('status'), whereEl=$('where'), verseEl=$('verse');
+function say(t){ statusEl.setAttribute('aria-live','polite'); statusEl.textContent=''; setTimeout(()=>{ statusEl.textContent=t; },60); }   // announced by VoiceOver
+function quiet(t){ statusEl.setAttribute('aria-live','off'); statusEl.textContent=t; }
+function loud(){ statusEl.setAttribute('aria-live','polite'); }
+
+/* ---------- position ---------- */
+let ptr = verseFirst[Math.min(N,Math.max(1,settings.pos||1))];   // next word expected
+function curVerse(){ return W[Math.min(ptr,W.length-1)].n; }
+function setVerse(n, announce){
+  if(want||busy) stopAll();
+  n=Math.max(1,Math.min(N,n|0)); ptr=verseFirst[n]; settings.pos=n; save(); updateWhere();
+  if(announce) say(`البيت ${n}، ${plain(secOf(n).t)}`);
+}
+function updateWhere(){
+  const n=curVerse(); whereEl.textContent=`البيت ${n} · ${plain(secOf(n).t)}`;
+  $('secSel').value=secIdx(n); $('verseIn').value=n; renderVerse();
+  const sm=mainBtn.querySelector('small'); if(sm && (want||active)) sm.textContent='أسمعك… البيت '+n;   // aria-label unchanged, so VoiceOver stays quiet
+}
+function renderVerse(){
+  const n=curVerse();
+  $('liveVerse').textContent='البيت '+n;
+  let d='';
+  for(let i=verseFirst[n];i<verseFirst[n+1];i++){
+    if(i>verseFirst[n] && W[i].h!==W[i-1].h) d+='<span class="gap"></span>';
+    d+=`<i class="${i===errAt?'err':i<ptr?'done':i===ptr&&(want||active)?'cur':''}"></i>`;
+  }
+  $('dots').innerHTML=d;
+  verseEl.classList.toggle('hidden',!settings.show);
+  if(!settings.show) return;
+  let html='';
+  for(let i=verseFirst[n];i<verseFirst[n+1];i++){
+    if(i>verseFirst[n] && W[i].h!==W[i-1].h) html+='<br>';
+    const c = i<ptr ? 'done' : (i===errAt ? 'err' : '');
+    html+=`<span class="w ${c}">${W[i].disp}</span> `;
+  }
+  verseEl.innerHTML=html;
+}
+
+/* ---------- sounds (earcons) ---------- */
+let actx=null;
+function ac(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(actx&&actx.state==='suspended') actx.resume(); return actx; }
+function tone(freqs, dur=.12, gap=.03, vol=.18, type='sine'){
+  const a=ac(); if(!a) return Promise.resolve(); let t=a.currentTime+.02;
+  freqs.forEach(f=>{ const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.value=f;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.015); g.gain.exponentialRampToValueAtTime(.0005,t+dur);
+    o.connect(g).connect(a.destination); o.start(t); o.stop(t+dur+.02); t+=dur+gap; });
+  return new Promise(r=>setTimeout(r,(t-a.currentTime)*1000+40));
+}
+const sfx={ start:()=>tone([523,784],.11), stop:()=>tone([784,523],.11), error:()=>tone([330,247],.16,.04,.22,'triangle'),
+  tick:()=>tone([1046],.05,0,.06), resume:()=>tone([659],.09,0,.14), done:()=>tone([523,659,784,1046],.1,.02,.16) };
+/* ---------- the sheikh's voice (one word or verse at a time, from the server) ---------- */
+const clipCache=new Map();
+async function playUrl(url){
+  try{
+    const a=ac(); let buf=clipCache.get(url);
+    if(!buf){ const r=await fetch(url); if(!r.ok) return false;
+      const ab=await r.arrayBuffer(); buf=await new Promise((res,rej)=>a.decodeAudioData(ab,res,rej)); clipCache.set(url,buf); }
+    return await new Promise(res=>{ const s=a.createBufferSource(); s.buffer=buf; s.connect(a.destination); s.onended=()=>res(true); s.start(); });
+  }catch(e){ return false; }
+}
+function speakTTS(text){
+  return new Promise(res=>{ try{ const u=new SpeechSynthesisUtterance(text); u.lang='ar-SA'; u.rate=.8; u.onend=()=>res(); u.onerror=()=>res(); speechSynthesis.cancel(); speechSynthesis.speak(u); setTimeout(res,6000); }catch(e){ res(); } });
+}
+async function playWord(i){ if(!(await playUrl('clip/'+i))) await speakTTS(W[i].disp); }
+async function playVerse(n){ if(!(await playUrl('verse/'+n))) await speakTTS(V[n-1].join('، ')); }
+
+/* ---------- microphone: 16 kHz samples streamed to the server ---------- */
+let mic=null, capNode=null, srcNode=null, sending=false;
+function down16(f32, rate){
+  const ratio=rate/16000, n=Math.floor(f32.length/ratio), out=new Int16Array(n);
+  for(let i=0;i<n;i++){ const a=Math.floor(i*ratio), b=Math.min(f32.length,Math.floor((i+1)*ratio)); let s=0; for(let k=a;k<b;k++) s+=f32[k];
+    out[i]=Math.max(-32768,Math.min(32767,(s/Math.max(1,b-a))*32767)); }
+  return out.buffer;
+}
+async function openMic(){
+  if(mic) return true;
+  try{ mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}}); }
+  catch(e){ say('لم يُسمح بالمايك. افتح إعدادات Safari، ثم الميكروفون، واختر سماح، ثم أعد تحميل الصفحة'); return false; }
+  const a=ac(), rate=a.sampleRate; srcNode=a.createMediaStreamSource(mic);
+  const onFrame=f=>{ if(sending && sock && sock.readyState===1) sock.send(down16(f,rate)); };
+  const sink=a.createGain(); sink.gain.value=0; sink.connect(a.destination);
+  try{
+    const code=`class C extends AudioWorkletProcessor{constructor(){super();this.b=[];this.n=0}process(i){const c=i[0]&&i[0][0];if(c){this.b.push(new Float32Array(c));this.n+=c.length;if(this.n>=${Math.round(rate*0.1)}){const o=new Float32Array(this.n);let k=0;for(const x of this.b){o.set(x,k);k+=x.length}this.port.postMessage(o,[o.buffer]);this.b=[];this.n=0}}return true}}registerProcessor('cap',C)`;
+    await a.audioWorklet.addModule(URL.createObjectURL(new Blob([code],{type:'application/javascript'})));
+    capNode=new AudioWorkletNode(a,'cap'); capNode.port.onmessage=e=>onFrame(e.data);
+  }catch(e){
+    capNode=a.createScriptProcessor(4096,1,1); capNode.onaudioprocess=e=>onFrame(new Float32Array(e.inputBuffer.getChannelData(0)));
+  }
+  srcNode.connect(capNode); capNode.connect(sink);
+  return true;
+}
+function closeMic(){
+  try{ srcNode&&srcNode.disconnect(); capNode&&capNode.disconnect(); }catch(e){}
+  if(mic) mic.getTracks().forEach(t=>t.stop());
+  mic=null; capNode=null; srcNode=null;
+}
+
+/* ---------- connection to the review server ---------- */
+const WS_URL=(location.protocol==='https:'?'wss://':'ws://')+location.host+location.pathname.replace(/[^/]*$/,'')+'ws';
+let sock=null, want=false, active=false, busy=false, errAt=-1, lastWordPlayed=-1;
+function connect(){
+  return new Promise(res=>{
+    if(sock && sock.readyState===1) return res(true);
+    setMain('connecting'); quiet('جارٍ الاتصال بالخادم…');
+    let done=false; const s=new WebSocket(WS_URL); s.binaryType='arraybuffer';
+    const t=setTimeout(()=>{ if(!done){ done=true; try{ s.close(); }catch(e){} res(false); } },60000);
+    s.onopen=()=>{ if(done) return; done=true; clearTimeout(t); sock=s; res(true); };
+    s.onerror=()=>{ if(done) return; done=true; clearTimeout(t); res(false); };
+    s.onmessage=e=>onServer(JSON.parse(e.data));
+    s.onclose=()=>{ if(sock!==s) return; sock=null; active=false;
+      if(want||busy){ want=false; busy=false; sending=false; closeMic(); setMain('idle'); say('انقطع الاتصال بالخادم. اضغط الزر الكبير للمتابعة'); } };
+  });
+}
+function onServer(m){
+  if(m.type==='listening'){ active=true; setMain('listening'); renderVerse(); }
+  else if(m.type==='progress'){
+    const before=curVerse(); ptr=m.ptr; const after=curVerse();
+    if(after!==before){ settings.pos=after; save(); updateWhere(); if(settings.tick) sfx.tick(); } else renderVerse();
+  }
+  else if(m.type==='error') onError(m.word);
+  else if(m.type==='done'){ stopAll(); sfx.done(); say('أتممت المنظومة، ما شاء الله'); }
+}
+
+/* ---------- a mistake: tone, the correct word in the sheikh's voice, then carry on ---------- */
+async function onError(i){
+  if(busy) return; busy=true; sending=false; errAt=i; ptr=i; renderVerse();
+  weak[W[i].n]=(weak[W[i].n]||0)+1; store.set('weak',weak);
+  setMain('correcting');
+  await sfx.error(); await playWord(i); lastWordPlayed=i;
+  busy=false; errAt=-1; renderVerse();
+  if(want && sock && sock.readyState===1){
+    await sfx.resume();
+    sock.send(JSON.stringify({type:'resume',word:i})); sending=true; setMain('listening');
+  }
+}
+
+/* ---------- main button ---------- */
+function setMain(state){
+  mainBtn.classList.remove('listening','paused');
+  if(state==='listening'){ mainBtn.classList.add('listening'); mainBtn.innerHTML='إيقاف<small>أسمعك… البيت '+curVerse()+'</small>'; mainBtn.setAttribute('aria-label','إيقاف التسميع'); }
+  else if(state==='connecting'){ mainBtn.classList.add('paused'); mainBtn.innerHTML='لحظة…<small>جارٍ الاتصال بالخادم</small>'; mainBtn.setAttribute('aria-label','جارٍ الاتصال بالخادم'); }
+  else if(state==='correcting'){ mainBtn.classList.add('paused'); mainBtn.innerHTML='تصحيح…'; }
+  else { mainBtn.innerHTML='ابدأ التسميع<small>من البيت '+curVerse()+'</small>'; mainBtn.setAttribute('aria-label','ابدأ التسميع من البيت '+curVerse()); }
+}
+function stopAll(){
+  want=false; busy=false; sending=false; active=false;
+  if(sock && sock.readyState===1) sock.send(JSON.stringify({type:'pause'}));
+  closeMic(); setMain('idle'); renderVerse();
+}
+mainBtn.addEventListener('click',async()=>{
+  ac();
+  if(want||busy){ stopAll(); await sfx.stop(); say(`توقّف. وصلت إلى البيت ${curVerse()}`); return; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ say('هذا المتصفح لا يسمح باستخدام المايك. افتح الرابط في Safari'); return; }
+  want=true;
+  if(!(await openMic())){ want=false; setMain('idle'); return; }
+  if(!(await connect())){ want=false; closeMic(); setMain('idle'); say('تعذّر الاتصال بالخادم. تأكد من الإنترنت ثم حاول مرة ثانية'); return; }
+  quiet(''); await sfx.start();
+  sock.send(JSON.stringify({type:'start',word:hemStart(ptr),strict:settings.strict})); sending=true;
+});
+
+/* ---------- other controls ---------- */
+$('sayWord').onclick=async()=>{ ac(); const i= lastWordPlayed>=0 ? lastWordPlayed : ptr; await playWord(Math.min(i,W.length-1)); };
+$('sayVerse').onclick=async()=>{ ac(); await playVerse(curVerse()); };
+$('prev').onclick=()=>setVerse(curVerse()-1,true);
+$('next').onclick=()=>setVerse(curVerse()+1,true);
+$('goVerse').onclick=()=>setVerse(+$('verseIn').value,true);
+$('verseIn').addEventListener('keydown',e=>{ if(e.key==='Enter') setVerse(+$('verseIn').value,true); });
+const secSel=$('secSel');
+SECS.forEach((s,k)=>{ const o=document.createElement('option'); o.value=k; o.textContent=`${plain(s.t)}، من البيت ${s.f} إلى ${s.to}`; secSel.appendChild(o); });
+secSel.onchange=()=>setVerse(SECS[+secSel.value].f,true);
+$('weakBtn').onclick=()=>{
+  const list=Object.keys(weak).map(Number).filter(n=>weak[n]>0).sort((a,b)=>a-b);
+  if(!list.length){ say('لا توجد أبيات أخطأت فيها حتى الآن'); return; }
+  const after=list.find(n=>n>curVerse()) || list[0];
+  const cnt = list.length===1?'بيت واحد':list.length===2?'بيتان':list.length<=10?list.length+' أبيات':list.length+' بيتًا';
+  setVerse(after,false); say(`عندك ${cnt} فيها أخطاء. انتقلت إلى البيت ${after}`);
+};
+document.querySelectorAll('input[name=strict]').forEach(r=>{ r.checked=r.value===settings.strict;
+  r.onchange=()=>{ settings.strict=r.value; save(); if(sock&&sock.readyState===1) sock.send(JSON.stringify({type:'strict',value:r.value})); }; });
+$('tickChk').checked=settings.tick; $('tickChk').onchange=e=>{ settings.tick=e.target.checked; save(); };
+$('showChk').checked=settings.show; $('showChk').onchange=e=>{ settings.show=e.target.checked; save(); renderVerse(); };
+document.addEventListener('keydown',e=>{ if(e.code==='Space' && document.activeElement===document.body){ e.preventDefault(); mainBtn.click(); } });
+updateWhere(); setMain('idle');
+</script>
+</body>
+</html>
