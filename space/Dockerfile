@@ -13,4 +13,4 @@ COPY --chown=user . /app
 USER user
 ENV MODEL_DIR=/models/omni NUMBA_CACHE_DIR=/tmp/numba THREADS=2 PYTHONUNBUFFERED=1
 EXPOSE 7860
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860", "--ws-max-size", "4194304"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "7860", "--ws-max-size", "4194304"]
