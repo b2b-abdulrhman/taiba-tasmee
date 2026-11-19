@@ -147,6 +147,11 @@ textarea.typed:focus{border-color:var(--gold)}
 .sheet{position:fixed;inset:auto 0 0 0;z-index:41;max-width:620px;margin:0 auto;background:var(--paper);border-radius:26px 26px 0 0;padding:8px 16px calc(18px + env(safe-area-inset-bottom));
   box-shadow:0 -20px 60px rgba(20,14,6,.2);transform:translateY(105%);transition:transform .42s var(--ease);max-height:88vh;overflow:auto}
 .sheet.on{transform:none}
+.howto{list-style:none;counter-reset:h;margin:0 0 14px;padding:0;display:flex;flex-direction:column;gap:10px}
+.howto li{counter-increment:h;position:relative;padding:10px 46px 10px 12px;background:#fff;border:1px solid var(--line);border-radius:16px;font-size:14px;line-height:1.75}
+.howto li::before{content:counter(h);position:absolute;right:10px;top:10px;width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700}
+.howto li b{display:block;color:var(--green);font-size:15px;margin-bottom:2px}
+.howto .k{display:inline-block;padding:0 7px;border-radius:7px;background:#f1eadb;font-weight:600;font-size:13px}
 .grab{width:44px;height:5px;border-radius:5px;background:var(--line);margin:4px auto 10px}
 .sheet h3{margin:0 0 12px;font-family:var(--verse);font-size:22px;color:var(--green);text-align:center}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
@@ -268,6 +273,9 @@ body.testing .more{display:none}
   <button class="tb-btn" id="fontBtn" aria-label="حجم الخط">
     <svg class="i" viewBox="0 0 24 24"><path d="M4 19l5-14 5 14M5.8 14h6.4"/><path d="M15 19l3-8 3 8M15.9 16.5h4.2"/></svg>
   </button>
+  <button class="tb-btn" id="helpBtn" aria-label="طريقة الاستخدام">
+    <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6"/><path d="M12 17.2h.01"/></svg>
+  </button>
 </header>
 <div class="progress"><i id="prog"></i></div>
 
@@ -363,6 +371,24 @@ body.testing .more{display:none}
   </div>
   <label class="field" style="flex-direction:row;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" id="tWeak" style="width:22px;height:22px;accent-color:var(--green)"><span>ركّز على الأبيات التي أخطأت فيها سابقًا</span></label>
   <button class="btn primary block" id="tStart">ابدأ الاختبار</button>
+</section>
+
+<section class="sheet" id="helpSheet" aria-label="طريقة الاستخدام">
+  <div class="grab"></div>
+  <h3>طريقة الاستخدام</h3>
+  <ol class="howto">
+    <li><b>اختر ما تسمّعه</b>من زر القائمة <span class="k">☰</span> أو بالضغط على اسم الباب في الأعلى: اختر الباب، أو اكتب من بيت كذا إلى بيت كذا.</li>
+    <li><b>اضغط المايك وسمّع</b>المايك يظل يسمع وأنت تكمل من بيت لبيت، وتتلوّن الكلمات أولًا بأول. وإذا أردت البدء من بيت معيّن فاضغط عليه.</li>
+    <li><b>معنى الألوان</b><span class="legend" style="justify-content:flex-start;margin:4px 0 0;font-size:13px"><span class="lg-ok">صحيح</span><span class="lg-bad">خطأ</span><span class="lg-miss">سقط منك</span><span class="lg-hint">بمساعدة التلميح</span></span></li>
+    <li><b>إذا ظهرت كلمة حمراء وأنت قلتها صح</b>اضغطها مرتين لتُحسب صحيحة؛ أحيانًا لا يفهم الجهاز النطق.</li>
+    <li><b>علقت؟</b>اضغط <span class="k">تلميح</span> لتظهر لك الكلمة التالية، أو <span class="k">إعادة</span> لتبدأ المقطع من جديد.</li>
+    <li><b>طريقة العرض</b>من الزر بجانب حجم الخط: إخفاء الأبيات كاملة، أو إظهار أول كل شطر، أو إظهار الأبيات كلها.</li>
+    <li><b>حجم الخط</b>من زر <span class="k">أ</span> اسحب الشريط لتكبير الخط أو تصغيره.</li>
+    <li><b>اختبار الحفظ</b>من زر البطاقة في الأعلى: يعطيك التطبيق مواضع عشوائية، يظهر لك أول كل موضع وتكمل أنت. وتقدر تغيّر عدد المواضع وعدد الأبيات في كل موضع.</li>
+    <li><b>النتيجة</b>اضغط <span class="k">النتيجة</span> متى شئت لترى نسبتك والكلمات التي أخطأت فيها.</li>
+    <li><b>لا يعمل المايك؟</b>اسمح للموقع باستخدام الميكروفون من إعدادات المتصفح، أو اضغط <span class="k">كتابة</span> واستخدم مايك لوحة المفاتيح.</li>
+  </ol>
+  <button class="btn primary block" id="helpDone">فهمت</button>
 </section>
 
 <div class="toast" id="toast"></div>
@@ -1202,11 +1228,21 @@ scrim.addEventListener('click',()=>openTestSheet(false));
 /* restart inside a test restarts the current card */
 $id('restartBtn').addEventListener('click',e=>{ if(TEST){ e.stopImmediatePropagation(); goCard(TEST.i); toast('من جديد — الموضع '+(TEST.i+1)); } }, true);
 
+/* help sheet */
+const helpSheet=$id('helpSheet');
+function openHelp(on){ helpSheet.classList.toggle('on',on); scrim.classList.toggle('on',on); if(on){ helpSheet.scrollTop=0; store.set('helpSeen',1); } }
+$id('helpBtn').onclick=()=>{ openSheet(false); openTestSheet(false); openHelp(true); };
+$id('helpDone').onclick=()=>openHelp(false);
+scrim.addEventListener('click',()=>openHelp(false));
+{ let sy=null; helpSheet.addEventListener('touchstart',e=>{ if(helpSheet.scrollTop<=0) sy=e.touches[0].clientY; },{passive:true});
+  helpSheet.addEventListener('touchmove',e=>{ if(sy!==null && e.touches[0].clientY-sy>70){ openHelp(false); sy=null; } },{passive:true}); }
+
 /* ---------- boot ---------- */
 fillSections();
 markChips(); setMode(mode); setFont(settings.fs || (innerWidth<640?22:26));
 setStatus('اضغط المايك وابدأ · أو اضغط على أي بيت لتبدأ منه');
 setRange(settings.from||1, settings.to||5, false);
+if(!store.get('helpSeen',0)) setTimeout(()=>openHelp(true),700);
 </script>
 </body>
 </html>
