@@ -341,6 +341,7 @@ function lev(a,b){
     [prev,cur]=[cur,prev]; }
   return prev[n];
 }
+function joinSame(a,b,t){ if(Math.abs(a.length+b.length-t.length)>3) return false; return same(a+b,t) || same(a+b.replace(/^ا/,''),t) || same(a+b.replace(/^ال/,'ل'),t); }
 function same(e,t){
   if(e===t) return true;
   const L=Math.max(e.length,t.length);
@@ -427,6 +428,9 @@ function align(){
         let best=D[(i-1)*W1+j-1]+(match?0:SUB), b=match?0:3;
         const ins=D[(i-1)*W1+j]+INS; if(ins<best){best=ins;b=1;}
         const del=D[i*W1+j-1]+DEL; if(del<best){best=del;b=2;}
+        // one heard word = two written words, or two heard words = one written word («يا ذا» / «ياذا»)
+        if(j>=2 && D[(i-1)*W1+j-2]<best && joinSame(E[base+j-2].key,E[base+j-1].key,tk)){ best=D[(i-1)*W1+j-2]; b=5; }
+        if(i>=2 && D[(i-2)*W1+j-1]<best && Math.abs(E[base+j-1].key.length-T[i-2].k.length-tk.length)<=2 && same(E[base+j-1].key,T[i-2].k+tk)){ best=D[(i-2)*W1+j-1]; b=6; }
         D[i*W1+j]=best; B[i*W1+j]=b;
       }
     }
@@ -438,6 +442,8 @@ function align(){
     while(i>0||j>0){
       const b=B[i*W1+j];
       if(i>0&&j>0&&(b===0||b===3)){ s.status[base+j-1]=b===0?'ok':'bad'; if(b===3) s.heard[base+j-1]=T[i-1].r; pairI[j]=i; i--; j--; }
+      else if(b===5&&i>0&&j>=2){ s.status[base+j-1]=s.status[base+j-2]='ok'; pairI[j]=pairI[j-1]=i; i--; j-=2; }
+      else if(b===6&&i>=2&&j>0){ s.status[base+j-1]='ok'; pairI[j]=i; i-=2; j--; }
       else if(j>0&&(b===2||i===0)){ s.status[base+j-1]='miss'; j--; }
       else { i--; }
     }

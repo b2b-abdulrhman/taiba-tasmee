@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مراجعة طيبة النشر</title>
+<meta name="theme-color" content="#0f3d26">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مراجعة الطيبة">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Kufi+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4efe3;--paper:#fffcf5;--ink:#1d140b;--muted:#6f604b;--line:#e3d7bd;--green:#0f3d26;--green-2:#17603b;--gold:#b5852c;--bad:#b3261e;--ok:#1d7a46;
+  --ui:'Noto Kufi Arabic',Tahoma,sans-serif;--verse:'Amiri','Traditional Arabic',serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:17px;line-height:1.7;padding:calc(14px + env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom))}
+main{max-width:640px;margin:0 auto}
+h1{font-family:var(--verse);font-size:30px;color:var(--green);text-align:center;margin:4px 0 2px}
+h2{font-size:16px;color:var(--muted);margin:26px 0 10px;font-weight:600}
+.where{text-align:center;font-size:18px;font-weight:600;margin:0 0 14px;color:var(--green-2)}
+button,select,input{font-family:inherit;font-size:inherit;color:inherit}
+.big{display:block;width:100%;min-height:150px;border:0;border-radius:28px;background:var(--green);color:#fff;font-size:30px;font-weight:700;
+  box-shadow:0 14px 34px rgba(15,61,38,.3);transition:background .25s,transform .12s;cursor:pointer;position:relative;overflow:hidden}
+.big:active{transform:scale(.98)}
+.big.listening{background:var(--bad)}
+.big.listening::after{content:"";position:absolute;inset:0;border-radius:inherit;animation:breathe 1.8s ease-in-out infinite;box-shadow:inset 0 0 0 0 rgba(255,255,255,.35)}
+.big.paused{background:var(--gold)}
+@keyframes breathe{50%{box-shadow:inset 0 0 0 14px rgba(255,255,255,.12)}}
+.big small{display:block;font-size:15px;font-weight:400;opacity:.85;margin-top:4px}
+.status{min-height:30px;text-align:center;font-size:16px;color:var(--muted);margin:12px 0 0}
+.verse{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin-top:14px;font-family:var(--verse);font-size:26px;line-height:2;text-align:center}
+.verse .w.done{color:var(--ok)} .verse .w.err{color:var(--bad);text-decoration:underline}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{min-height:64px;border:2px solid var(--line);background:#fff;border-radius:18px;font-weight:600;padding:8px 10px;cursor:pointer}
+.btn:active{background:#f3ead6}
+.btn.wide{grid-column:1/-1}
+label.f{display:block;font-weight:600;margin:10px 0 6px}
+select,input[type=number]{width:100%;min-height:58px;border:2px solid var(--line);border-radius:16px;background:#fff;padding:8px 12px}
+fieldset{border:2px solid var(--line);border-radius:18px;padding:10px 12px 12px;margin:0 0 12px;background:#fff}
+legend{font-weight:600;padding:0 6px}
+.radio{display:flex;align-items:center;gap:10px;min-height:52px}
+.radio input{width:24px;height:24px;accent-color:var(--green)}
+.radio span small{display:block;color:var(--muted);font-size:13px;line-height:1.5}
+.check{display:flex;align-items:center;gap:10px;min-height:52px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:6px 12px;margin-bottom:12px}
+.check input{width:24px;height:24px;accent-color:var(--green)}
+.note{font-size:14px;color:var(--muted);background:#f8eed6;border-radius:14px;padding:10px 12px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>مراجعة طيبة النشر</h1>
+  <p class="where" id="where"></p>
+
+  <h2 class="sr-only">التسميع</h2>
+  <button class="big" id="main" type="button">ابدأ التسميع</button>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+  <div class="verse hidden" id="verse" aria-hidden="true"></div>
+
+  <div class="grid" style="margin-top:16px">
+    <button class="btn" id="sayWord" type="button">أعد الكلمة الصحيحة</button>
+    <button class="btn" id="sayVerse" type="button">اسمع البيت الحالي</button>
+  </div>
+
+  <h2>مكان البدء</h2>
+  <div class="grid">
+    <button class="btn" id="prev" type="button">البيت السابق</button>
+    <button class="btn" id="next" type="button">البيت التالي</button>
+  </div>
+  <label class="f" for="secSel">الباب</label>
+  <select id="secSel"></select>
+  <label class="f" for="verseIn">رقم البيت، من ١ إلى ١٠١٥</label>
+  <div class="grid">
+    <input id="verseIn" type="number" min="1" max="1015" inputmode="numeric">
+    <button class="btn" id="goVerse" type="button">انتقل إلى البيت</button>
+  </div>
+  <div class="grid" style="margin-top:10px">
+    <button class="btn wide" id="weakBtn" type="button">راجع الأبيات التي أخطأت فيها</button>
+  </div>
+
+  <h2>الإعدادات</h2>
+  <fieldset>
+    <legend>متى يوقفك البرنامج</legend>
+    <label class="radio"><input type="radio" name="strict" value="strict"><span>عند أي اختلاف<small>أدق، لكن قد يوقفك وأنت مصيب</small></span></label>
+    <label class="radio"><input type="radio" name="strict" value="normal"><span>عند الخطأ الواضح فقط<small>الموصى به</small></span></label>
+    <label class="radio"><input type="radio" name="strict" value="lenient"><span>عند خطأين متتاليين أو سقوط كلمات<small>أقل إيقافًا</small></span></label>
+  </fieldset>
+  <label class="check"><input type="checkbox" id="tickChk"><span>صوت خفيف بعد إتمام كل بيت</span></label>
+  <label class="check"><input type="checkbox" id="showChk"><span>إظهار نص البيت على الشاشة (للمرافق)</span></label>
+
+  <fieldset>
+    <legend>صوت الشيخ أيمن سويد</legend>
+    <p id="audioState" style="margin:4px 0 10px"></p>
+    <label class="f" for="audioFile">اختيار ملف التسجيل (مرة واحدة فقط)</label>
+    <input id="audioFile" type="file" accept="audio/*,.m4a,.mp3">
+    <p class="note" style="margin-bottom:0">يُحفظ الملف داخل هذا الجهاز فقط. وإلى أن يُختار، تُقرأ الكلمة الصحيحة بالصوت الآلي.</p>
+  </fieldset>
+</main>
+
+<audio id="player" preload="auto" playsinline></audio>
+
+<script>
+const DATA = /*DATA*/null;
+const TIMING = /*TIMING*/null;
+const ALTS = /*ALTS*/{};   // what the sheikh read where it differs from this text
+const V = DATA.verses, N = V.length;
+
+/* ---------- chapters ---------- */
+const SECS=[];
+(function(){ const raw=DATA.sections; let parent='';
+  for(let i=0;i<raw.length;i++){ const s=raw[i], nx=raw[i+1]; const clean=s.t.replace(/[\s:]+$/,'');
+    if(nx && nx.f===s.f){ parent=clean.replace(/^ب[َ]?ابُ\s*/,''); if(/فَرْشِ/.test(clean)) parent=''; continue; }
+    const isFasl=/^ف[َُ]?ص/.test(clean); SECS.push({t:(isFasl&&parent?parent+' — ':'')+clean, f:s.f, to:nx?nx.f-1:N}); if(!isFasl) parent=''; } })();
+const DIAC=/[ؐ-ًؚ-ٰٟۖ-ۭـ‌‍‎‏]/g;
+function plain(s){ return s.replace(DIAC,''); }
+function secOf(n){ let r=SECS[0]; for(const s of SECS) if(s.f<=n) r=s; return r; }
+function secIdx(n){ let k=0; SECS.forEach((s,i)=>{ if(s.f<=n) k=i; }); return k; }
+
+/* ---------- words of the whole poem ---------- */
+function norm(w){ return (w||'').replace(DIAC,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ء/g,'').replace(/[^ء-ي]/g,''); }
+const W=[]; const verseFirst=new Array(N+2).fill(0);
+for(let n=1;n<=N;n++){ verseFirst[n]=W.length; let k=0;
+  V[n-1].forEach((hem,h)=>hem.split(/\s+/).filter(Boolean).forEach(disp=>{ const key=norm(disp);
+    if(key){ const t=TIMING.verses[n-1][k]||[0,0]; const al=(ALTS[n]||{})[k]; W.push({n,h,k,disp,key,alt:al?norm(al):'',s:t[0],e:t[1]}); k++; } else if(W.length) W[W.length-1].disp+=' '+disp; })); }
+verseFirst[N+1]=W.length;
+function hemStart(i){ let j=i; while(j>0 && W[j-1].n===W[i].n && W[j-1].h===W[i].h) j--; return j; }
+
+function lev(a,b){ const m=a.length,n=b.length; if(!m) return n; if(!n) return m; let p=Array.from({length:n+1},(_,j)=>j), c=new Array(n+1);
+  for(let i=1;i<=m;i++){ c[0]=i; for(let j=1;j<=n;j++) c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); [p,c]=[c,p]; } return p[n]; }
+function sim(e,t){ if(e===t) return 1; const s=x=>x.replace(/^(و|ف)/,''); if(s(e)===s(t)) return .95; return 1-lev(e,t)/Math.max(e.length,t.length); }
+function joinSame(a,b,t){ if(Math.abs(a.length+b.length-t.length)>3) return false; return same(a+b,t) || same(a+b.replace(/^ا/,''),t) || same(a+b.replace(/^ال/,'ل'),t); }
+function same(e,t){ if(e===t) return true; if(e.length<=2) return false; const v=sim(e,t); return v>=(e.length<=4?.74:.67); }
+
+/* ---------- settings & storage ---------- */
+const store={ get(k,d){ try{ const v=localStorage.getItem('murajaa:'+k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem('murajaa:'+k,JSON.stringify(v)); }catch(e){} } };
+const settings=Object.assign({strict:'normal',tick:true,show:false,pos:1}, store.get('settings',{}));
+let weak=store.get('weak',{});   // verse -> times it stopped him
+function save(){ store.set('settings',settings); }
+
+/* ---------- UI refs ---------- */
+const $=id=>document.getElementById(id);
+const mainBtn=$('main'), statusEl=$('status'), whereEl=$('where'), verseEl=$('verse');
+function say(t){ statusEl.setAttribute('aria-live','polite'); statusEl.textContent=''; setTimeout(()=>{ statusEl.textContent=t; },60); }   // announced by VoiceOver
+function quiet(t){ statusEl.setAttribute('aria-live','off'); statusEl.textContent=t; }
+function loud(){ statusEl.setAttribute('aria-live','polite'); }
+
+/* ---------- position ---------- */
+let ptr = verseFirst[Math.min(N,Math.max(1,settings.pos||1))];   // next word expected
+function curVerse(){ return W[Math.min(ptr,W.length-1)].n; }
+function setVerse(n, announce){
+  if(want||busy){ want=false; busy=false; try{ rec.abort(); }catch(e){} setMain('idle'); }
+  n=Math.max(1,Math.min(N,n|0)); ptr=verseFirst[n]; settings.pos=n; save(); updateWhere();
+  if(announce) say(`البيت ${n}، ${plain(secOf(n).t)}`);
+}
+function updateWhere(){
+  const n=curVerse(); whereEl.textContent=`البيت ${n} · ${plain(secOf(n).t)}`;
+  $('secSel').value=secIdx(n); $('verseIn').value=n; renderVerse();
+}
+function renderVerse(){
+  verseEl.classList.toggle('hidden',!settings.show);
+  if(!settings.show) return;
+  const n=curVerse(); let html='';
+  for(let i=verseFirst[n];i<verseFirst[n+1];i++){
+    if(i>verseFirst[n] && W[i].h!==W[i-1].h) html+='<br>';
+    const c = i<ptr ? 'done' : (i===errAt ? 'err' : '');
+    html+=`<span class="w ${c}">${W[i].disp}</span> `;
+  }
+  verseEl.innerHTML=html;
+}
+
+/* ---------- sounds (earcons) ---------- */
+let actx=null;
+function ac(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(actx&&actx.state==='suspended') actx.resume(); return actx; }
+function tone(freqs, dur=.12, gap=.03, vol=.18, type='sine'){
+  const a=ac(); if(!a) return Promise.resolve(); let t=a.currentTime+.02;
+  freqs.forEach(f=>{ const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.value=f;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.015); g.gain.exponentialRampToValueAtTime(.0005,t+dur);
+    o.connect(g).connect(a.destination); o.start(t); o.stop(t+dur+.02); t+=dur+gap; });
+  return new Promise(r=>setTimeout(r,(t-a.currentTime)*1000+40));
+}
+const sfx={ start:()=>tone([523,784],.11), stop:()=>tone([784,523],.11), error:()=>tone([330,247],.16,.04,.22,'triangle'),
+  tick:()=>tone([1046],.05,0,.06), resume:()=>tone([659],.09,0,.14), done:()=>tone([523,659,784,1046],.1,.02,.16) };
+
+/* ---------- sheikh audio (kept on this device only) ---------- */
+const player=$('player'); let audioReady=false;
+function idb(){ return new Promise((res,rej)=>{ const r=indexedDB.open('murajaa',1); r.onupgradeneeded=()=>r.result.createObjectStore('files'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+async function idbGet(k){ const db=await idb(); return new Promise(res=>{ const q=db.transaction('files').objectStore('files').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(null); }); }
+async function idbPut(k,v){ const db=await idb(); return new Promise((res,rej)=>{ const t=db.transaction('files','readwrite'); t.objectStore('files').put(v,k); t.oncomplete=res; t.onerror=()=>rej(t.error); }); }
+function setAudioBlob(b){ player.src=URL.createObjectURL(b); audioReady=true; $('audioState').textContent='✓ صوت الشيخ جاهز على هذا الجهاز.'; }
+(async()=>{ try{ const b=await idbGet('sheikh'); if(b) setAudioBlob(b); else $('audioState').textContent='لم يُختر ملف صوت الشيخ بعد.'; }catch(e){ $('audioState').textContent='لم يُختر ملف صوت الشيخ بعد.'; } })();
+$('audioFile').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return;
+  try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); await idbPut('sheikh',f); }catch(err){}
+  setAudioBlob(f); say('تم حفظ صوت الشيخ على هذا الجهاز'); });
+let unlocked=false;
+function unlockAudio(){ if(unlocked||!audioReady) return; unlocked=true; const v=player.volume; player.muted=true; player.play().then(()=>{ player.pause(); player.muted=false; }).catch(()=>{ player.muted=false; unlocked=false; }); }
+let stopTimer=null;
+function playSpan(s,e){
+  return new Promise(resolve=>{
+    if(!audioReady||!(e>s)){ resolve(false); return; }
+    clearTimeout(stopTimer); player.pause();
+    let started=false;
+    const go=()=>{ if(started) return; started=true; player.removeEventListener('seeked',onSeek);
+      player.play().then(()=>{ stopTimer=setTimeout(()=>{ player.pause(); resolve(true); }, (e-s)*1000/(player.playbackRate||1)); }).catch(()=>resolve(false)); };
+    const onSeek=()=>go();
+    player.addEventListener('seeked',onSeek); player.currentTime=Math.max(0,s);
+    setTimeout(()=>{ if(!started && !player.seeking) go(); },400);
+  });
+}
+function speakTTS(text){
+  return new Promise(res=>{ try{ const u=new SpeechSynthesisUtterance(text); u.lang='ar-SA'; u.rate=.8; u.onend=()=>res(); u.onerror=()=>res(); speechSynthesis.cancel(); speechSynthesis.speak(u); setTimeout(res,6000); }catch(e){ res(); } });
+}
+async function playWord(i){ const w=W[i]; if(!(await playSpan(w.s-.03,w.e+.05))) await speakTTS(w.disp); }
+async function playVerse(n){ const a=W[verseFirst[n]], b=W[verseFirst[n+1]-1]; if(!(await playSpan(a.s-.05,b.e+.1))) await speakTTS(V[n-1].join('، ')); }
+
+/* ---------- following the recitation ---------- */
+let toks=[], partial='', anchor=ptr, freeTo=ptr, errAt=-1, pendingErr=-1, lastWordPlayed=-1;
+function tokensOf(s){ return (s||'').split(/\s+/).filter(w=>norm(w)).map(w=>({k:norm(w),r:w})); }
+function resetFollow(from, freeUpTo){ toks=[]; partial=''; anchor=from; freeTo=Math.max(from,freeUpTo??from); pendingErr=-1; }
+
+function align(final){
+  const T=toks.concat(tokensOf(partial)); const n=T.length; if(!n) return;
+  const m=Math.min(W.length-anchor, n*2+12); if(m<=0) return;
+  const W1=m+1, D=new Float32Array((n+1)*W1), B=new Uint8Array((n+1)*W1), INS=.7, DEL=1, SUB=1;
+  const freeCols=freeTo-anchor;
+  for(let j=1;j<=m;j++){ D[j]= j<=freeCols ? 0 : (j-freeCols)*DEL; B[j]= j<=freeCols ? 4 : 2; }
+  for(let i=1;i<=n;i++){ D[i*W1]=i*INS; B[i*W1]=1; const tk=T[i-1].k;
+    for(let j=1;j<=m;j++){ const wj=W[anchor+j-1], ek=wj.key, mt=same(ek,tk) || (wj.alt!=='' && same(wj.alt,tk));
+      let best=D[(i-1)*W1+j-1]+(mt?0:SUB), b=mt?0:3;
+      const ins=D[(i-1)*W1+j]+INS; if(ins<best){best=ins;b=1;}
+      const del=D[i*W1+j-1]+DEL; if(del<best){best=del;b=2;}
+      // one heard word = two written words (e.g. «هوبن» for «هو ابن»)
+      if(j>=2 && D[(i-1)*W1+j-2]<best){ const pk=W[anchor+j-2].key; if(joinSame(pk,ek,tk)){ best=D[(i-1)*W1+j-2]; b=5; } }
+      // two heard words = one written word (e.g. «يا ذا» for «ياذا»)
+      if(i>=2 && D[(i-2)*W1+j-1]<best && Math.abs(ek.length-T[i-2].k.length-tk.length)<=2 && same(ek,T[i-2].k+tk)){ best=D[(i-2)*W1+j-1]; b=6; }
+      D[i*W1+j]=best; B[i*W1+j]=b; } }
+  let bj=0,bv=Infinity; for(let j=0;j<=m;j++){ const v=D[n*W1+j]; if(v<bv-1e-6||(Math.abs(v-bv)<1e-6&&j>bj)){bv=v;bj=j;} }
+  const st=new Array(bj).fill('pending'), heard=new Array(bj).fill(''), pairI=new Int32Array(bj+1);
+  let i=n,j=bj, firstJ=0;
+  while(i>0||j>0){ const b=B[i*W1+j];
+    if(i>0&&j>0&&(b===0||b===3)){ st[j-1]=b===0?'ok':'bad'; if(b===3) heard[j-1]=T[i-1].r; pairI[j]=i; i--; j--; }
+    else if(b===5 && i>0 && j>=2){ st[j-1]=st[j-2]='ok'; pairI[j]=i; pairI[j-1]=i; i--; j-=2; }
+    else if(b===6 && i>=2 && j>0){ st[j-1]='ok'; pairI[j]=i; i-=2; j--; }
+    else if(j>0 && i===0 && b===4){ firstJ=j; break; }                      // free start (restarted the hemistich)
+    else if(j>0&&(b===2||i===0)){ st[j-1]='miss'; j--; }
+    else i--; }
+  // judge only words that have a correctly heard word after them
+  let lastOk=-1; for(let k=bj-1;k>=firstJ;k--) if(st[k]==='ok'){ lastOk=k; break; }
+  let err=-1;
+  for(let k=firstJ;k<bj;k++){
+    if(st[k]==='ok') continue;
+    if(k>lastOk && !final) break;
+    if(isError(k,st,heard)){ err=anchor+k; break; }
+  }
+  const newPtr=anchor+(lastOk>=0?lastOk+1:firstJ);
+  if(newPtr>ptr){ const before=W[ptr]?W[ptr].n:N; ptr=newPtr; const after=curVerse();
+    if(after!==before){ settings.pos=after; save(); updateWhere(); if(settings.tick) sfx.tick(); } else renderVerse(); }
+  if(err>=0){
+    if(pendingErr===err || final) onError(err, heard[err-anchor]);
+    else pendingErr=err;
+  } else pendingErr=-1;
+  // keep the work small on long recitations
+  if(err<0 && lastOk>30){ const k=lastOk-10; if(pairI[k+1]>0 && pairI[k+1]<=toks.length){ toks=toks.slice(pairI[k+1]); anchor=anchor+k+1; freeTo=anchor; } }
+}
+function isError(k,st,heard){
+  const w=W[anchor+k], s=st[k], mode=settings.strict;
+  if(mode==='strict') return true;
+  if(mode==='normal'){
+    if(s==='miss') return w.key.length>2 || (st[k-1]&&st[k-1]!=='ok') || (st[k+1]&&st[k+1]!=='ok');
+    return sim(w.key,norm(heard[k]||''))<.5;
+  }
+  // lenient: two wrong in a row
+  const nx=st[k+1]; return nx && nx!=='ok' && nx!=='pending';
+}
+
+/* ---------- speech recognition ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null, want=false, active=false, busy=false, everStarted=false, restarting=false;
+let runFinalIdx=0, runLast=[], runPartial='';
+function words(t){ return (t||'').trim().split(/\s+/).filter(Boolean); }
+function stripPrefix(ws,pre){ if(pre.length>=2 && ws.length>=pre.length){ let k=0; while(k<pre.length&&norm(ws[k])===norm(pre[k])) k++; if(k===pre.length) return ws.slice(k); } return ws; }
+function initRec(){
+  if(!SR) return;
+  rec=new SR(); rec.lang='ar-SA'; rec.continuous=true; rec.interimResults=true; rec.maxAlternatives=1;
+  rec.onstart=()=>{ active=true; everStarted=true; restarting=false; runFinalIdx=0; runLast=[]; runPartial=''; setMain('listening'); };
+  rec.onresult=e=>{ if(busy) return;
+    let interim=[], gotFinal=false;
+    for(let i=e.resultIndex;i<e.results.length;i++){ const r=e.results[i], ws=words(r[0].transcript);
+      if(r.isFinal){ if(i<runFinalIdx) continue; runFinalIdx=i+1; const add=stripPrefix(ws,runLast);
+        runLast = ws.length>=runLast.length ? ws : runLast.concat(add); if(add.length){ toks.push(...tokensOf(add.join(' '))); gotFinal=true; } }
+      else interim=interim.concat(ws); }
+    runPartial=stripPrefix(interim,runLast).join(' '); partial=runPartial; align(gotFinal && !partial); };
+  rec.onerror=e=>{ const er=e.error; if(er==='no-speech'||er==='aborted') return;
+    if(er==='not-allowed' && everStarted && restarting){ want=false; setMain('paused'); say('اضغط الزر الكبير للمتابعة'); return; }
+    want=false; setMain('idle');
+    if(er==='not-allowed') say('لم يُسمح بالمايك. افتح إعدادات Safari، ثم الميكروفون، واختر سماح');
+    else if(er==='service-not-allowed') say('فعّل الإملاء من الإعدادات، عام، لوحة المفاتيح، ثم أعد المحاولة');
+    else if(er==='network') say('التعرّف على الصوت يحتاج إنترنت');
+    else say('حدث خطأ في المايك، اضغط الزر الكبير مرة ثانية'); };
+  rec.onend=()=>{ active=false;
+    if(runPartial && !busy){ toks.push(...tokensOf(runPartial)); runPartial=''; partial=''; align(true); }
+    if(want && !busy){ restarting=true; setTimeout(()=>{ if(!want||busy) return; try{ rec.start(); }catch(e){ want=false; setMain('paused'); sfx.resume(); } },80); }
+    else if(!want && !busy) setMain('idle'); };
+}
+initRec();
+function startRec(){ want=true; restarting=false; try{ rec.start(); }catch(e){ try{ rec.abort(); }catch(_){} setTimeout(()=>{ try{ rec.start(); }catch(_){ want=false; setMain('paused'); } },300); } }
+function stopRec(){ want=false; try{ rec.abort(); }catch(e){} }
+
+/* ---------- error: tone, then the correct word in the sheikh's voice, then carry on ---------- */
+async function onError(i){
+  if(busy) return; busy=true; errAt=i; renderVerse();
+  try{ rec.abort(); }catch(e){}
+  weak[W[i].n]=(weak[W[i].n]||0)+1; store.set('weak',weak);
+  setMain('correcting');
+  await sfx.error();
+  await playWord(i); lastWordPlayed=i;
+  ptr=i; resetFollow(hemStart(i), i);       // he may repeat the word or restart the hemistich
+  busy=false; errAt=-1; renderVerse();
+  if(want){ restarting=true; await sfx.resume();
+    try{ rec.start(); }catch(e){ setTimeout(()=>{ try{ rec.start(); }catch(_){ want=false; setMain('paused'); say('اضغط الزر الكبير للمتابعة'); } },300); } }
+}
+
+/* ---------- main button ---------- */
+function setMain(state){
+  mainBtn.classList.remove('listening','paused');
+  if(state==='listening'){ mainBtn.classList.add('listening'); mainBtn.innerHTML='إيقاف<small>أسمعك… سمّع من البيت '+curVerse()+'</small>'; mainBtn.setAttribute('aria-label','إيقاف التسميع'); }
+  else if(state==='paused'){ mainBtn.classList.add('paused'); mainBtn.innerHTML='تابع التسميع<small>من البيت '+curVerse()+'</small>'; mainBtn.setAttribute('aria-label','تابع التسميع من البيت '+curVerse()); }
+  else if(state==='correcting'){ mainBtn.classList.add('paused'); mainBtn.innerHTML='تصحيح…'; }
+  else { mainBtn.innerHTML='ابدأ التسميع<small>من البيت '+curVerse()+'</small>'; mainBtn.setAttribute('aria-label','ابدأ التسميع من البيت '+curVerse()); }
+}
+let sessionStart=0, sessionErrs=0;
+mainBtn.addEventListener('click',async()=>{
+  ac(); unlockAudio();
+  if(!SR){ say('هذا المتصفح لا يدعم التسميع بالصوت. افتح الرابط في Safari'); return; }
+  if(want || active || busy){ want=false; busy=false; try{ rec.abort(); }catch(e){} player.pause(); setMain('idle'); await sfx.stop();
+    const done=curVerse()-sessionStart; say(`توقّف. وصلت إلى البيت ${curVerse()}`); return; }
+  sessionStart=curVerse(); resetFollow(hemStart(ptr), ptr); quiet('');
+  await sfx.start(); startRec();
+});
+
+/* ---------- other controls ---------- */
+$('sayWord').onclick=async()=>{ ac(); unlockAudio(); const i= lastWordPlayed>=0 ? lastWordPlayed : ptr; await playWord(Math.min(i,W.length-1)); };
+$('sayVerse').onclick=async()=>{ ac(); unlockAudio(); await playVerse(curVerse()); };
+$('prev').onclick=()=>setVerse(curVerse()-1,true);
+$('next').onclick=()=>setVerse(curVerse()+1,true);
+$('goVerse').onclick=()=>setVerse(+$('verseIn').value,true);
+$('verseIn').addEventListener('keydown',e=>{ if(e.key==='Enter') setVerse(+$('verseIn').value,true); });
+const secSel=$('secSel');
+SECS.forEach((s,k)=>{ const o=document.createElement('option'); o.value=k; o.textContent=`${plain(s.t)}، من البيت ${s.f} إلى ${s.to}`; secSel.appendChild(o); });
+secSel.onchange=()=>setVerse(SECS[+secSel.value].f,true);
+$('weakBtn').onclick=()=>{
+  const list=Object.keys(weak).map(Number).filter(n=>weak[n]>0).sort((a,b)=>a-b);
+  if(!list.length){ say('لا توجد أبيات أخطأت فيها حتى الآن'); return; }
+  const after=list.find(n=>n>curVerse()) || list[0];
+  const cnt = list.length===1?'بيت واحد':list.length===2?'بيتان':list.length<=10?list.length+' أبيات':list.length+' بيتًا';
+  setVerse(after,false); say(`عندك ${cnt} فيها أخطاء. انتقلت إلى البيت ${after}`);
+};
+document.querySelectorAll('input[name=strict]').forEach(r=>{ r.checked=r.value===settings.strict; r.onchange=()=>{ settings.strict=r.value; save(); }; });
+$('tickChk').checked=settings.tick; $('tickChk').onchange=e=>{ settings.tick=e.target.checked; save(); };
+$('showChk').checked=settings.show; $('showChk').onchange=e=>{ settings.show=e.target.checked; save(); renderVerse(); };
+document.addEventListener('keydown',e=>{ if(e.code==='Space' && document.activeElement===document.body){ e.preventDefault(); mainBtn.click(); } });
+
+updateWhere(); setMain('idle');
+if(!SR) statusEl.textContent='التسميع بالصوت يعمل في Safari على الآيفون';
+</script>
+</body>
+</html>
