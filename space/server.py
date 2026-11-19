@@ -3,13 +3,14 @@ The phone streams microphone audio over a WebSocket; the server follows the reci
 mistake, tells the page which word to play (in Sheikh Ayman Suwaid's voice, served one word at a time)."""
 import asyncio, io, json, os, subprocess, time, wave
 import numpy as np
+from collections import deque
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, Response, JSONResponse
 from engine import Model, Poem, Follower, SR
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.environ.get('MODEL_DIR', '/models/omni')
-THREADS = int(os.environ.get('THREADS', '2'))
+THREADS = int(os.environ.get('THREADS', str(min(4, os.cpu_count() or 2))))
 
 model = Model(MODEL_DIR, threads=THREADS)
 poem = Poem(os.path.join(HERE, 'data'))
@@ -36,8 +37,12 @@ def load_audio():
     audio = np.frombuffer(raw, np.int16)
     print(f'sheikh audio loaded: {len(audio)/AUDIO_SR/60:.1f} min', flush=True)
 
-def wav_bytes(a, b):
+def wav_bytes(a, b, tempo=1.0):
     seg = audio[max(0, int(a * AUDIO_SR)):int(b * AUDIO_SR)]
+    if abs(tempo - 1.0) > 0.01:                     # slower, same pitch
+        seg = np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-f', 's16le', '-ar', str(AUDIO_SR), '-ac', '1', '-i', '-',
+                                            '-af', f'atempo={tempo:.2f}', '-f', 's16le', '-'],
+                                           input=seg.tobytes(), capture_output=True).stdout, np.int16)
     # short fades so clips don't click
     seg = seg.astype(np.float32); n = min(len(seg) // 4, int(0.012 * AUDIO_SR))
     if n > 0: seg[:n] *= np.linspace(0, 1, n); seg[-n:] *= np.linspace(1, 0, n)
@@ -68,14 +73,24 @@ def manifest(): return FileResponse(os.path.join(HERE, 'static', 'manifest.webma
 @app.get('/icon.png')
 def icon(): return FileResponse(os.path.join(HERE, 'static', 'icon.png'))
 
+STEP_TIMES = deque(maxlen=400)
+
 @app.get('/health')
-def health(): return {'ok': True, 'audio': audio is not None}
+def health(): return {'ok': True, 'audio': audio is not None, 'threads': THREADS, 'cpus': os.cpu_count()}
+
+@app.get('/stats')
+def stats():
+    t = sorted(STEP_TIMES)
+    return {'checks': len(t), 'median_s': round(t[len(t) // 2], 3) if t else None, 'p90_s': round(t[int(len(t) * .9)], 3) if t else None, 'threads': THREADS}
 
 @app.get('/clip/{i}')
-def clip(i: int):
+def clip(i: int, n: int = 1, tempo: float = 1.0):
+    """word i, and up to n-1 following words of the same half-line, optionally slowed down"""
     if audio is None or not (0 <= i < len(poem.W)): return Response(status_code=404)
-    w = poem.W[i]
-    return Response(wav_bytes(w['s'] - 0.03, w['e'] + 0.05), media_type='audio/wav', headers={'Cache-Control': 'public, max-age=86400'})
+    w = poem.W[i]; j = i
+    while j + 1 < len(poem.W) and j + 1 < i + max(1, min(n, 4)) and poem.W[j + 1]['n'] == w['n'] and poem.W[j + 1]['h'] == w['h']: j += 1
+    tempo = max(0.6, min(1.0, tempo))
+    return Response(wav_bytes(w['s'] - 0.03, poem.W[j]['e'] + 0.05, tempo), media_type='audio/wav', headers={'Cache-Control': 'public, max-age=86400'})
 
 @app.get('/verse/{n}')
 def verse(n: int):
@@ -86,9 +101,32 @@ def verse(n: int):
 # ------------------------------------------------------------ live following
 @app.websocket('/ws')
 async def ws(sock: WebSocket):
+    """Receiving audio and checking it run side by side: a check always looks at the newest audio,
+    so a slow check never makes the follower fall behind the reciter."""
     await sock.accept()
     loop = asyncio.get_running_loop()
-    f = None; paused = True; busy = False; last = 0.0
+    st = {'f': None, 'paused': True, 'alive': True}
+
+    async def worker():
+        last = 0.0
+        while st['alive']:
+            f = st['f']
+            if f is None or st['paused'] or f.now - last < 0.2:
+                await asyncio.sleep(0.05); continue
+            last = f.now
+            t0 = time.time()
+            events = await loop.run_in_executor(None, f.step)
+            STEP_TIMES.append(time.time() - t0)
+            if st['f'] is not f: continue          # restarted meanwhile
+            for e in events:
+                if e['type'] == 'error':
+                    st['paused'] = True             # the page plays the word, then sends "resume"
+                    w = poem.W[e['word']]; e.update(n=w['n'], disp=w['disp'])
+                try: await sock.send_json(e)
+                except Exception: return
+                if e['type'] == 'error': break
+
+    task = asyncio.create_task(worker())
     try:
         while True:
             msg = await sock.receive()
@@ -96,28 +134,21 @@ async def ws(sock: WebSocket):
             if msg.get('text'):
                 m = json.loads(msg['text'])
                 if m['type'] == 'start':
-                    f = Follower(model, poem, int(m['word']), m.get('strict', 'normal')); paused = False; last = 0.0
+                    st['f'] = Follower(model, poem, int(m['word']), m.get('strict', 'normal')); st['paused'] = False
                     await sock.send_json({'type': 'listening'})
-                elif m['type'] == 'resume' and f:
-                    f.resume(int(m['word'])); paused = False; last = f.now
+                elif m['type'] == 'resume' and st['f']:
+                    st['f'].resume(int(m['word'])); st['paused'] = False
                 elif m['type'] == 'pause':
-                    paused = True
-                elif m['type'] == 'strict' and f:
-                    f.set_strict(m['value'])
+                    st['paused'] = True
+                elif m['type'] == 'strict' and st['f']:
+                    st['f'].set_strict(m['value'])
                 continue
             data = msg.get('bytes')
-            if not data or f is None or paused: continue
-            f.feed(np.frombuffer(data, np.int16).astype(np.float32) / 32768.0)
-            if busy or f.now - last < 0.35: continue
-            busy = True; last = f.now
-            try:
-                events = await loop.run_in_executor(None, f.step)
-            finally:
-                busy = False
-            for e in events:
-                if e['type'] == 'error':
-                    paused = True            # the page plays the word, then sends "resume"
-                    w = poem.W[e['word']]; e.update(n=w['n'], disp=w['disp'])
-                await sock.send_json(e)
+            if not data or st['f'] is None or st['paused']: continue
+            if os.environ.get('DUMP_AUDIO'):
+                with open(os.environ['DUMP_AUDIO'], 'ab') as fh: fh.write(data)
+            st['f'].feed(np.frombuffer(data, np.int16).astype(np.float32) / 32768.0)
     except WebSocketDisconnect:
         pass
+    finally:
+        st['alive'] = False; task.cancel()

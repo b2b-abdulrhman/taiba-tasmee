@@ -148,7 +148,7 @@ class Poem:
 GOP_THR = -1.5      # calibrated on the sheikh's recording: ~90% of mistakes caught, ~0.5% false stops
 HEARD_THR = 0.5
 AHEAD = 10          # expected words considered per check
-MAXWIN = 7.0        # seconds of audio per check at most
+MAXWIN = 6.0        # seconds of audio per check at most
 
 class Follower:
     def __init__(self, model, poem, start_word, strict='normal'):
@@ -158,6 +158,7 @@ class Follower:
         self.buf = np.zeros(0, np.float32); self.buf_t0 = 0.0   # stream time of buf[0]
         self.anchor = 0.0                # stream time where word `ptr` (or the restart point) begins, roughly
         self.pending = None
+        self.lost = 0                    # >0: we lost track; the next few words may be skipped silently
         self.forgiven = set()            # words he was already stopped on once: never stop twice on the same word
         self.set_strict(strict)
         self.last_check = 0.0; self.compute = []
@@ -181,7 +182,9 @@ class Follower:
         ev = []
         if self.ptr >= len(self.p.W): return [{'type': 'done'}]
         a = max(self.buf_t0, self.anchor - 0.3)
-        if self.now - a > MAXWIN: a = self.now - MAXWIN; self.anchor = max(self.anchor, a)
+        if self.now - a > MAXWIN:
+            # stuck: the start of the expected word is leaving the window, so resync instead of waiting forever
+            a = self.now - MAXWIN; self.anchor = max(self.anchor, a); self.lost = 4; self.pending = None
         if self.now - a < 0.9: return ev
         seg = self.buf[int((a - self.buf_t0) * SR):]
         if seg.std() < 2e-3: return ev                     # silence
@@ -194,7 +197,8 @@ class Follower:
         for wi in range(i0, i1):
             if wi > i0: lab.append(cid('|')); opt.append(True); owner.append(-1)
             for ch in W[wi]['L']:
-                lab.append(cid(ch)); opt.append(wi < self.ptr or (ch in OPTIONAL and len(W[wi]['L']) > 1)); owner.append(wi)
+                skippable = wi < self.ptr or wi < self.ptr + self.lost
+                lab.append(cid(ch)); opt.append(skippable or (ch in OPTIONAL and len(W[wi]['L']) > 1)); owner.append(wi)
         E = emissions(lp); blank = lp[:, 0]; garb = lp.max(1) - 3.0
         path = viterbi_prefix(E, blank, garb, np.array(lab, np.int64), np.array(opt, np.bool_))
         self.compute.append(time.time() - t1)
@@ -209,6 +213,9 @@ class Follower:
                 li = (k - 1) // 2; o = owner[li]; emit[t] = E[t, lab[li]]
                 if o >= 0: cur = o; fw[t] = o
         reached = cur                                   # furthest word the alignment got to
+        if reached >= self.ptr and reached != getattr(self, '_last_reach', -1):
+            self._last_reach = reached
+            ev.append({'type': 'reach', 'word': int(reached)})   # for the screen: where he is right now
         am = lp.argmax(1)
         verdicts = []
         for wi in range(self.ptr, max(self.ptr, reached)):  # words he has moved past
@@ -224,6 +231,8 @@ class Follower:
                 prev = c
             heard = norm(heard)
             sim = max(ratio(W[wi]['key'], heard), ratio(W[wi]['alt'], heard) if W[wi]['alt'] else 0.0)
+            if self.lost and wi < self.ptr + self.lost and len(fr) < 2:
+                verdicts.append((wi, False, a + nxt[0] * FR, a + nxt[0] * FR, 0.0, 1.0, '', False)); continue   # lost word: no judgement
             squeezed = len(fr) < 1.6 * len(L)               # far too short for its letters: skipped
             bad = (g < self.gop_thr and sim < self.heard_thr) or (squeezed and g < self.gop_thr * 0.6)
             strong = bad and (g < 2 * self.gop_thr or squeezed) and sim < 0.35
@@ -242,9 +251,9 @@ class Follower:
         else:
             self.pending = None
             good = verdicts[:-1] if len(verdicts) > 1 else []   # keep the last judged word in the window
-        if good and not ev:
+        if good and not any(x['type'] == 'error' for x in ev):
             last = good[-1]
-            self.ptr = last[0] + 1; self.free_from = self.ptr; self.anchor = last[3]
+            self.ptr = last[0] + 1; self.free_from = self.ptr; self.anchor = last[3]; self.lost = 0
             # drop old audio
             cut = max(0.0, self.anchor - 1.0 - self.buf_t0)
             if cut > 0: self.buf = self.buf[int(cut * SR):]; self.buf_t0 += cut

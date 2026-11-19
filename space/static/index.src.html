@@ -172,7 +172,8 @@ function renderVerse(){
   let d='';
   for(let i=verseFirst[n];i<verseFirst[n+1];i++){
     if(i>verseFirst[n] && W[i].h!==W[i-1].h) d+='<span class="gap"></span>';
-    d+=`<i class="${i===errAt?'err':i<ptr?'done':i===ptr&&(want||active)?'cur':''}"></i>`;
+    const said=Math.max(ptr, (want||active)?reach+1:0);
+    d+=`<i class="${i===errAt?'err':i<said?'done':i===said&&(want||active)?'cur':''}"></i>`;
   }
   $('dots').innerHTML=d;
   verseEl.classList.toggle('hidden',!settings.show);
@@ -180,7 +181,7 @@ function renderVerse(){
   let html='';
   for(let i=verseFirst[n];i<verseFirst[n+1];i++){
     if(i>verseFirst[n] && W[i].h!==W[i-1].h) html+='<br>';
-    const c = i<ptr ? 'done' : (i===errAt ? 'err' : '');
+    const c = i<Math.max(ptr,(want||active)?reach+1:0) ? 'done' : (i===errAt ? 'err' : '');
     html+=`<span class="w ${c}">${W[i].disp}</span> `;
   }
   verseEl.innerHTML=html;
@@ -211,7 +212,8 @@ async function playUrl(url){
 function speakTTS(text){
   return new Promise(res=>{ try{ const u=new SpeechSynthesisUtterance(text); u.lang='ar-SA'; u.rate=.8; u.onend=()=>res(); u.onerror=()=>res(); speechSynthesis.cancel(); speechSynthesis.speak(u); setTimeout(res,6000); }catch(e){ res(); } });
 }
-async function playWord(i){ if(!(await playUrl('clip/'+i))) await speakTTS(W[i].disp); }
+// the correct word and the one after it, a little slower
+async function playWord(i){ if(!(await playUrl('clip/'+i+'?n=2&tempo=0.8'))) await speakTTS(W[i].disp); }
 async function playVerse(n){ if(!(await playUrl('verse/'+n))) await speakTTS(V[n-1].join('، ')); }
 
 /* ---------- microphone: 16 kHz samples streamed to the server ---------- */
@@ -247,7 +249,7 @@ function closeMic(){
 
 /* ---------- connection to the review server ---------- */
 const WS_URL=(location.protocol==='https:'?'wss://':'ws://')+location.host+location.pathname.replace(/[^/]*$/,'')+'ws';
-let sock=null, want=false, active=false, busy=false, errAt=-1, lastWordPlayed=-1;
+let sock=null, want=false, active=false, busy=false, errAt=-1, lastWordPlayed=-1, reach=-1;
 function connect(){
   return new Promise(res=>{
     if(sock && sock.readyState===1) return res(true);
@@ -267,13 +269,14 @@ function onServer(m){
     const before=curVerse(); ptr=m.ptr; const after=curVerse();
     if(after!==before){ settings.pos=after; save(); updateWhere(); if(settings.tick) sfx.tick(); } else renderVerse();
   }
+  else if(m.type==='reach'){ reach=m.word; renderVerse(); }
   else if(m.type==='error') onError(m.word);
   else if(m.type==='done'){ stopAll(); sfx.done(); say('أتممت المنظومة، ما شاء الله'); }
 }
 
 /* ---------- a mistake: tone, the correct word in the sheikh's voice, then carry on ---------- */
 async function onError(i){
-  if(busy) return; busy=true; sending=false; errAt=i; ptr=i; renderVerse();
+  if(busy) return; busy=true; sending=false; errAt=i; ptr=i; reach=i-1; renderVerse();
   weak[W[i].n]=(weak[W[i].n]||0)+1; store.set('weak',weak);
   setMain('correcting');
   await sfx.error(); await playWord(i); lastWordPlayed=i;
@@ -304,7 +307,7 @@ mainBtn.addEventListener('click',async()=>{
   want=true;
   if(!(await openMic())){ want=false; setMain('idle'); return; }
   if(!(await connect())){ want=false; closeMic(); setMain('idle'); say('تعذّر الاتصال بالخادم. تأكد من الإنترنت ثم حاول مرة ثانية'); return; }
-  quiet(''); await sfx.start();
+  quiet(''); await sfx.start(); reach=-1;
   sock.send(JSON.stringify({type:'start',word:hemStart(ptr),strict:settings.strict})); sending=true;
 });
 
