@@ -212,8 +212,8 @@ async function playUrl(url){
 function speakTTS(text){
   return new Promise(res=>{ try{ const u=new SpeechSynthesisUtterance(text); u.lang='ar-SA'; u.rate=.8; u.onend=()=>res(); u.onerror=()=>res(); speechSynthesis.cancel(); speechSynthesis.speak(u); setTimeout(res,6000); }catch(e){ res(); } });
 }
-// the correct word and the one after it, a little slower
-async function playWord(i){ if(!(await playUrl('clip/'+i+'?n=2&tempo=0.8'))) await speakTTS(W[i].disp); }
+// the correct word and the two after it, a little slower
+async function playWord(i){ if(!(await playUrl('clip/'+i+'?n=3&tempo=0.8'))) await speakTTS(W[i].disp); }
 async function playVerse(n){ if(!(await playUrl('verse/'+n))) await speakTTS(V[n-1].join('، ')); }
 
 /* ---------- microphone: 16 kHz samples streamed to the server ---------- */

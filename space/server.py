@@ -85,10 +85,10 @@ def stats():
 
 @app.get('/clip/{i}')
 def clip(i: int, n: int = 1, tempo: float = 1.0):
-    """word i, and up to n-1 following words of the same half-line, optionally slowed down"""
+    """word i and up to n-1 following words of the same verse, optionally slowed down"""
     if audio is None or not (0 <= i < len(poem.W)): return Response(status_code=404)
     w = poem.W[i]; j = i
-    while j + 1 < len(poem.W) and j + 1 < i + max(1, min(n, 4)) and poem.W[j + 1]['n'] == w['n'] and poem.W[j + 1]['h'] == w['h']: j += 1
+    while j + 1 < len(poem.W) and j + 1 < i + max(1, min(n, 5)) and poem.W[j + 1]['n'] == w['n']: j += 1   # stay inside the verse
     tempo = max(0.6, min(1.0, tempo))
     return Response(wav_bytes(w['s'] - 0.03, poem.W[j]['e'] + 0.05, tempo), media_type='audio/wav', headers={'Cache-Control': 'public, max-age=86400'})
 
