@@ -33,6 +33,13 @@ button,select,input{font-family:inherit;font-size:inherit;color:inherit}
 .big small{display:block;font-size:15px;font-weight:400;opacity:.85;margin-top:4px}
 .status{min-height:30px;text-align:center;font-size:16px;color:var(--muted);margin:12px 0 0}
 .verse{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin-top:14px;font-family:var(--verse);font-size:26px;line-height:2;text-align:center}
+.live{margin-top:14px;background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:12px 14px;text-align:center}
+.live .lv{font-weight:700;color:var(--green);font-size:16px}
+.dots{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin:10px 0 6px;direction:rtl}
+.dots i{width:14px;height:14px;border-radius:50%;background:#e3d7bd;transition:background .25s,transform .25s}
+.dots i.done{background:var(--ok)} .dots i.cur{background:var(--gold);transform:scale(1.25)} .dots i.err{background:var(--bad);transform:scale(1.25)}
+.dots .gap{width:16px}
+.heard{min-height:28px;font-family:var(--verse);font-size:19px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .verse .w.done{color:var(--ok)} .verse .w.err{color:var(--bad);text-decoration:underline}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .btn{min-height:64px;border:2px solid var(--line);background:#fff;border-radius:18px;font-weight:600;padding:8px 10px;cursor:pointer}
@@ -62,6 +69,11 @@ legend{font-weight:600;padding:0 6px}
   <h2 class="sr-only">التسميع</h2>
   <button class="big" id="main" type="button">ابدأ التسميع</button>
   <p class="status" id="status" role="status" aria-live="polite"></p>
+  <div class="live" id="live" aria-hidden="true">
+    <div class="lv" id="liveVerse"></div>
+    <div class="dots" id="dots"></div>
+    <div class="heard" id="heard"></div>
+  </div>
   <div class="verse hidden" id="verse" aria-hidden="true"></div>
 
   <div class="grid" style="margin-top:16px">
@@ -163,11 +175,20 @@ function setVerse(n, announce){
 function updateWhere(){
   const n=curVerse(); whereEl.textContent=`البيت ${n} · ${plain(secOf(n).t)}`;
   $('secSel').value=secIdx(n); $('verseIn').value=n; renderVerse();
+  const sm=mainBtn.querySelector('small'); if(sm && (want||active)) sm.textContent='أسمعك… البيت '+n;   // aria-label unchanged, so VoiceOver stays quiet
 }
 function renderVerse(){
+  const n=curVerse();
+  $('liveVerse').textContent='البيت '+n;
+  let d='';
+  for(let i=verseFirst[n];i<verseFirst[n+1];i++){
+    if(i>verseFirst[n] && W[i].h!==W[i-1].h) d+='<span class="gap"></span>';
+    d+=`<i class="${i===errAt?'err':i<ptr?'done':i===ptr&&(want||active)?'cur':''}"></i>`;
+  }
+  $('dots').innerHTML=d;
   verseEl.classList.toggle('hidden',!settings.show);
   if(!settings.show) return;
-  const n=curVerse(); let html='';
+  let html='';
   for(let i=verseFirst[n];i<verseFirst[n+1];i++){
     if(i>verseFirst[n] && W[i].h!==W[i-1].h) html+='<br>';
     const c = i<ptr ? 'done' : (i===errAt ? 'err' : '');
@@ -289,14 +310,17 @@ function stripPrefix(ws,pre){ if(pre.length>=2 && ws.length>=pre.length){ let k=
 function initRec(){
   if(!SR) return;
   rec=new SR(); rec.lang='ar-SA'; rec.continuous=true; rec.interimResults=true; rec.maxAlternatives=1;
-  rec.onstart=()=>{ active=true; everStarted=true; restarting=false; runFinalIdx=0; runLast=[]; runPartial=''; setMain('listening'); };
+  rec.onstart=()=>{ active=true; everStarted=true; restarting=false; runFinalIdx=0; runLast=[]; runPartial=''; setMain('listening'); renderVerse(); };
   rec.onresult=e=>{ if(busy) return;
     let interim=[], gotFinal=false;
     for(let i=e.resultIndex;i<e.results.length;i++){ const r=e.results[i], ws=words(r[0].transcript);
       if(r.isFinal){ if(i<runFinalIdx) continue; runFinalIdx=i+1; const add=stripPrefix(ws,runLast);
         runLast = ws.length>=runLast.length ? ws : runLast.concat(add); if(add.length){ toks.push(...tokensOf(add.join(' '))); gotFinal=true; } }
       else interim=interim.concat(ws); }
-    runPartial=stripPrefix(interim,runLast).join(' '); partial=runPartial; align(gotFinal && !partial); };
+    runPartial=stripPrefix(interim,runLast).join(' '); partial=runPartial;
+    if(statusEl.getAttribute('aria-live')==='off') statusEl.textContent='';
+    $('heard').textContent=(toks.slice(-6).map(t=>t.r).join(' ')+' '+partial).trim().split(/\s+/).slice(-7).join(' ');
+    align(gotFinal && !partial); };
   rec.onerror=e=>{ const er=e.error; if(er==='no-speech'||er==='aborted') return;
     if(er==='not-allowed' && everStarted && restarting){ want=false; setMain('paused'); say('اضغط الزر الكبير للمتابعة'); return; }
     want=false; setMain('idle');
@@ -330,7 +354,7 @@ async function onError(i){
 /* ---------- main button ---------- */
 function setMain(state){
   mainBtn.classList.remove('listening','paused');
-  if(state==='listening'){ mainBtn.classList.add('listening'); mainBtn.innerHTML='إيقاف<small>أسمعك… سمّع من البيت '+curVerse()+'</small>'; mainBtn.setAttribute('aria-label','إيقاف التسميع'); }
+  if(state==='listening'){ mainBtn.classList.add('listening'); mainBtn.innerHTML='إيقاف<small>أسمعك… البيت '+curVerse()+'</small>'; mainBtn.setAttribute('aria-label','إيقاف التسميع'); }
   else if(state==='paused'){ mainBtn.classList.add('paused'); mainBtn.innerHTML='تابع التسميع<small>من البيت '+curVerse()+'</small>'; mainBtn.setAttribute('aria-label','تابع التسميع من البيت '+curVerse()); }
   else if(state==='correcting'){ mainBtn.classList.add('paused'); mainBtn.innerHTML='تصحيح…'; }
   else { mainBtn.innerHTML='ابدأ التسميع<small>من البيت '+curVerse()+'</small>'; mainBtn.setAttribute('aria-label','ابدأ التسميع من البيت '+curVerse()); }
@@ -341,7 +365,7 @@ mainBtn.addEventListener('click',async()=>{
   if(!SR){ say('هذا المتصفح لا يدعم التسميع بالصوت. افتح الرابط في Safari'); return; }
   if(want || active || busy){ want=false; busy=false; try{ rec.abort(); }catch(e){} player.pause(); setMain('idle'); await sfx.stop();
     const done=curVerse()-sessionStart; say(`توقّف. وصلت إلى البيت ${curVerse()}`); return; }
-  sessionStart=curVerse(); resetFollow(hemStart(ptr), ptr); quiet('');
+  sessionStart=curVerse(); resetFollow(hemStart(ptr), ptr); quiet('أسمعك… ابدأ من البيت '+curVerse()); $('heard').textContent='';
   await sfx.start(); startRec();
 });
 
