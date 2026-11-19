@@ -233,7 +233,7 @@ async function openMic(){
   const sink=a.createGain(); sink.gain.value=0; sink.connect(a.destination);
   try{
     const code=`class C extends AudioWorkletProcessor{constructor(){super();this.b=[];this.n=0}process(i){const c=i[0]&&i[0][0];if(c){this.b.push(new Float32Array(c));this.n+=c.length;if(this.n>=${Math.round(rate*0.1)}){const o=new Float32Array(this.n);let k=0;for(const x of this.b){o.set(x,k);k+=x.length}this.port.postMessage(o,[o.buffer]);this.b=[];this.n=0}}return true}}registerProcessor('cap',C)`;
-    await a.audioWorklet.addModule(URL.createObjectURL(new Blob([code],{type:'application/javascript'})));
+    if(!window.__capLoaded){ await a.audioWorklet.addModule(URL.createObjectURL(new Blob([code],{type:'application/javascript'}))); window.__capLoaded=true; }   // register the processor once
     capNode=new AudioWorkletNode(a,'cap'); capNode.port.onmessage=e=>onFrame(e.data);
   }catch(e){
     capNode=a.createScriptProcessor(4096,1,1); capNode.onaudioprocess=e=>onFrame(new Float32Array(e.inputBuffer.getChannelData(0)));

@@ -108,9 +108,10 @@ async def ws(sock: WebSocket):
     st = {'f': None, 'paused': True, 'alive': True}
 
     async def worker():
-        last = 0.0
+        last = 0.0; cur = None
         while st['alive']:
             f = st['f']
+            if f is not cur: cur = f; last = 0.0          # a new start: forget the previous session's clock
             if f is None or st['paused'] or f.now - last < 0.2:
                 await asyncio.sleep(0.05); continue
             last = f.now
