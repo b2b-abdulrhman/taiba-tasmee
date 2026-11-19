@@ -194,6 +194,46 @@ select:focus,input[type=number]:focus{border-color:var(--gold)}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 .confetti i{position:absolute;top:-12px;width:8px;height:14px;border-radius:2px;animation:fall linear forwards}
 
+/* ---------- memorization test ---------- */
+.deck{display:flex;gap:10px;overflow-x:auto;padding:6px 4px 14px;margin:0 -4px 4px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.deck::-webkit-scrollbar{display:none}
+.mc{flex:0 0 auto;scroll-snap-align:center;width:66px;height:88px;border-radius:16px;border:1.5px solid var(--line);background:var(--paper);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);font-family:var(--ui);
+  box-shadow:0 6px 16px rgba(36,25,15,.06);transition:transform .35s var(--spring),box-shadow .3s,background .3s,border-color .3s;position:relative;
+  animation:dealIn .5s var(--spring) both;animation-delay:calc(var(--k,0) * 70ms)}
+.mc b{font-size:22px;line-height:1;color:var(--green)} .mc small{font-size:10.5px;white-space:nowrap}
+.mc.cur{border-color:var(--gold);transform:translateY(-4px) rotate(-2deg);box-shadow:0 12px 26px rgba(193,146,55,.28);background:#fff}
+.mc.done::after{content:"";position:absolute;top:6px;left:6px;width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.mc.good{background:var(--green-soft);border-color:#bfdcc6} .mc.good::after{background:var(--ok)} .mc.good small{color:var(--ok);font-weight:700}
+.mc.mid{background:var(--gold-soft);border-color:#ecd8a8} .mc.mid::after{background:var(--gold)} .mc.mid small{color:var(--gold);font-weight:700}
+.mc.low{background:var(--bad-soft);border-color:#f3c6bf} .mc.low::after{background:var(--bad)} .mc.low small{color:var(--bad);font-weight:700}
+body.testing .more{display:none}
+.verses.card-mode{background:linear-gradient(160deg,#fffdf8,#fbf3e2);border:1.5px solid #ead9b4;border-radius:26px;padding:14px 10px 12px;
+  box-shadow:0 22px 50px rgba(36,25,15,.12),inset 0 1px 0 #fff;position:relative;overflow:hidden}
+.verses.card-mode::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:radial-gradient(400px 160px at 100% 0,rgba(193,146,55,.14),transparent 70%)}
+.verses.card-mode .verse{box-shadow:none;background:rgba(255,255,255,.7)}
+.verses.card-mode.out{animation:cardOut .32s var(--ease) forwards}
+.verses.card-mode.in{animation:cardIn .5s var(--spring) both}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 4px 10px;border-bottom:1px dashed #e7d6ae;margin-bottom:6px;position:relative}
+.card-head b{display:block;font-family:var(--verse);font-size:21px;color:var(--green)}
+.card-head small{color:var(--muted);font-size:12px}
+.card-head .ch-btns{display:flex;gap:6px}
+.w.given{color:var(--green-2);background:var(--gold-soft);box-shadow:inset 0 -2px 0 var(--gold-2)}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:46px;height:46px;border-radius:14px;border:1.5px solid var(--line);background:#fff;font-size:22px;font-weight:700;color:var(--green)}
+.stepper output{min-width:44px;text-align:center;font-size:22px;font-weight:700;color:var(--green)}
+.hist{font-size:12.5px;color:var(--muted);text-align:center;margin:-4px 0 12px}
+.plist{list-style:none;margin:10px 0;padding:0}
+.plist li{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:9px 2px;animation:rise .4s var(--ease) both}
+.plist .pp{flex:0 0 auto;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:14px}
+.plist .pp.good{background:var(--green-soft);color:var(--ok)} .plist .pp.mid{background:var(--gold-soft);color:var(--gold)} .plist .pp.low{background:var(--bad-soft);color:var(--bad)}
+.plist .pt{flex:1;min-width:0;font-size:13px;color:var(--muted)} .plist .pt b{display:block;color:var(--ink);font-size:14px}
+.plist .vt{font-family:var(--verse);font-size:17px}
+@keyframes dealIn{from{opacity:0;transform:translateY(18px) rotate(6deg) scale(.9)}to{opacity:1}}
+@keyframes cardOut{to{opacity:0;transform:translateX(60px) rotate(4deg) scale(.96)}}
+@keyframes cardIn{from{opacity:0;transform:translateX(-50px) rotate(-3deg) scale(.96)}to{opacity:1;transform:none}}
+
 /* ---------- motion ---------- */
 @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes reveal{from{opacity:0;transform:translateY(5px) scale(.92);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
@@ -214,6 +254,9 @@ select:focus,input[type=number]:focus{border-color:var(--gold)}
 <header class="topbar">
   <button class="tb-btn" id="menuBtn" aria-label="الإعدادات">
     <svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h16"/></svg>
+  </button>
+  <button class="tb-btn" id="testBtn" aria-label="اختبار الحفظ">
+    <svg class="i" viewBox="0 0 24 24"><rect x="7" y="4" width="12" height="16" rx="2.5"/><path d="M4.5 7.5v10A2.5 2.5 0 0 0 7 20"/><path d="M11 10.5l1.6 1.6 3-3.2"/></svg>
   </button>
   <button class="tb-title" id="titleBtn" aria-label="اختيار الباب">
     <b id="barTitle">طيبة النشر</b>
@@ -236,6 +279,7 @@ select:focus,input[type=number]:focus{border-color:var(--gold)}
 
 <main class="wrap">
   <div class="banner hidden" id="banner"></div>
+  <div class="deck hidden" id="deck" aria-label="مواضع الاختبار"></div>
   <div class="verses" id="verses"></div>
   <div class="more">
     <button class="ghost" id="prevBtn">→ الأبيات السابقة</button>
@@ -288,8 +332,37 @@ select:focus,input[type=number]:focus{border-color:var(--gold)}
     </div>
   </div>
   <div class="legend"><span class="lg-ok">صحيح</span><span class="lg-bad">خطأ</span><span class="lg-miss">سقط</span><span class="lg-hint">بمساعدة</span></div>
+  <button class="btn block" id="openTest" style="margin-bottom:10px">اختبار الحفظ — مواضع عشوائية</button>
   <button class="btn primary block" id="sheetDone">تم</button>
   <p class="tip" style="margin-bottom:0">اضغط على أي بيت ليبدأ التسميع منه · واضغط الكلمة الحمراء مرتين إذا كانت صحيحة ولم يفهمها الجهاز.</p>
+</section>
+
+<section class="sheet" id="testSheet" aria-label="اختبار الحفظ">
+  <div class="grab"></div>
+  <h3>اختبار الحفظ</h3>
+  <p class="hist" id="tHist">يختار لك التطبيق مواضع عشوائية، يظهر أول كل موضع وتكمل من حفظك.</p>
+  <div class="field">
+    <label for="tScope">من أين تُختار المواضع</label>
+    <select id="tScope"></select>
+  </div>
+  <div class="row2 hidden" id="tCustom">
+    <div class="field"><label for="tFrom">من بيت</label><input id="tFrom" type="number" min="1" max="1015" inputmode="numeric"></div>
+    <div class="field"><label for="tTo">إلى بيت</label><input id="tTo" type="number" min="1" max="1015" inputmode="numeric"></div>
+  </div>
+  <div class="field">
+    <label>عدد المواضع</label>
+    <div class="chips" id="tCount"><button data-v="3">٣</button><button data-v="5">٥</button><button data-v="7">٧</button><button data-v="10">١٠</button></div>
+  </div>
+  <div class="field">
+    <label>عدد الأبيات في كل موضع</label>
+    <div class="stepper"><button id="tMinus" aria-label="أقل">−</button><output id="tPer">5</output><button id="tPlus" aria-label="أكثر">+</button></div>
+  </div>
+  <div class="field">
+    <label>ما يظهر من بداية كل موضع</label>
+    <div class="seg" id="tPrompt"><button data-v="two">أول كلمتين</button><button data-v="hem">الشطر الأول</button><button data-v="none">رقم البيت فقط</button></div>
+  </div>
+  <label class="field" style="flex-direction:row;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" id="tWeak" style="width:22px;height:22px;accent-color:var(--green)"><span>ركّز على الأبيات التي أخطأت فيها سابقًا</span></label>
+  <button class="btn primary block" id="tStart">ابدأ الاختبار</button>
 </section>
 
 <div class="toast" id="toast"></div>
@@ -419,7 +492,8 @@ function align(){
   if(n && m>0){
     const W1=m+1;
     const D=new Float32Array((n+1)*W1), B=new Uint8Array((n+1)*W1);
-    for(let j=1;j<=m;j++){D[j]=j*DEL;B[j]=2;}
+    const free=(base===0 && s.given)?s.given:0;
+    for(let j=1;j<=m;j++){ D[j]= j<=free ? 0 : (j-free)*DEL; B[j]= j<=free ? 4 : 2; }
     for(let i=1;i<=n;i++){
       D[i*W1]=i*INS; B[i*W1]=1;
       const tk=T[i-1].k;
@@ -444,6 +518,7 @@ function align(){
       if(i>0&&j>0&&(b===0||b===3)){ s.status[base+j-1]=b===0?'ok':'bad'; if(b===3) s.heard[base+j-1]=T[i-1].r; pairI[j]=i; i--; j--; }
       else if(b===5&&i>0&&j>=2){ s.status[base+j-1]=s.status[base+j-2]='ok'; pairI[j]=pairI[j-1]=i; i--; j-=2; }
       else if(b===6&&i>=2&&j>0){ s.status[base+j-1]='ok'; pairI[j]=i; i-=2; j--; }
+      else if(i===0&&b===4){ break; }                       // started after the words shown as the prompt
       else if(j>0&&(b===2||i===0)){ s.status[base+j-1]='miss'; j--; }
       else { i--; }
     }
@@ -469,11 +544,12 @@ function renderVerses(fromIdx){
   let idx=fromIdx;
   let prevN = fromIdx ? s.W[fromIdx-1].n : null;
   const startList = s.list.indexOf(s.W[fromIdx] ? s.W[fromIdx].n : -1);
+  if(TEST && !fromIdx) versesEl.appendChild(cardHead());
   if(s.retry && !fromIdx){ const t=document.createElement('div'); t.className='sec-title'; t.textContent='مراجعة الأبيات التي فيها أخطاء'; versesEl.appendChild(t); }
   let k=0;
   s.list.slice(startList<0?s.list.length:startList).forEach(n=>{
     const sec=secOf(n);
-    if(!s.retry && (prevN===null || secOf(prevN)!==sec)){
+    if(!s.retry && !TEST && (prevN===null || secOf(prevN)!==sec)){
       const t=document.createElement('div'); t.className='sec-title'; t.textContent=sec.t; versesEl.appendChild(t);
     }
     prevN=n;
@@ -500,9 +576,11 @@ function paint(){
     let c='w';
     if(accepted && st!=='pending') c+=' ok';
     else if(hinted) c+=' hint';
+    else if(st==='pending' && s.given && i<s.given) c+=' given';
     else if(st==='pending'){
-      if(mode==='show') c+=' show';
-      else if(mode==='hint' && firstOfHem(i)) c+=' pending peek';
+      const vm = TEST ? (TEST.reveal ? 'show' : 'hide') : mode;
+      if(vm==='show') c+=' show';
+      else if(vm==='hint' && firstOfHem(i)) c+=' pending peek';
       else c+=' pending';
     }
     else c+=' '+st;
@@ -514,7 +592,7 @@ function paint(){
   if(curVerse!==lastCurVerse){
     versesEl.querySelectorAll('.verse.current').forEach(v=>v.classList.remove('current'));
     const cv=versesEl.querySelector(`.verse[data-n="${curVerse}"]`);
-    document.getElementById('barTitle').textContent=secOf(curVerse).t;
+    if(!TEST) document.getElementById('barTitle').textContent=secOf(curVerse).t;
     if(cv){ cv.classList.add('current'); if(isListening()) cv.scrollIntoView({block:'center',behavior:'smooth'}); }
     lastCurVerse=curVerse;
   }
@@ -536,10 +614,12 @@ setInterval(()=>{ if(isListening()) renderLive(); }, 1500);
 /* tapping a red/orange word: show what was heard; second tap accepts it as correct */
 versesEl.addEventListener('click',e=>{
   if(!session) return;
+  const act=e.target.closest('[data-act]');
+  if(act){ testAction(act.dataset.act); return; }
   const el=e.target.closest('.w');
   const st0 = el ? session.status[+el.dataset.i] : null;
   if(!el || !(st0==='bad'||st0==='miss'||session.ok.has(+el.dataset.i))){
-    const v=e.target.closest('.verse'); if(!v) return;
+    const v=e.target.closest('.verse'); if(!v || TEST) return;
     startFrom(+v.dataset.n); return;
   }
   const i=+el.dataset.i, st=session.status[i];
@@ -582,6 +662,7 @@ let toastTimer=null;
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('on'),2600); }
 function rangeDone(){
   const s=session;
+  if(TEST){ s.done=true; cardDone(true); return; }
   const chunk=s.list.slice(s.chunkStart||0);
   recordVerses(chunk);
   let okW=0,totW=0; chunk.forEach(n=>{ const r=verseResult(n); s.W.forEach((w,i)=>{ if(w.n===n){ totW++; if(s.status[i]==='ok'&&!s.hints.has(i)||s.ok.has(i)) okW++; } }); });
@@ -865,6 +946,7 @@ typedEl.addEventListener('input',()=>{ const s=session; if(!s) return;
 /* ---------- final results ---------- */
 const overlay=document.getElementById('overlay'), dialog=document.getElementById('dialog');
 function finish(auto){
+  if(TEST){ testSummary(); return; }
   stopListening();
   const s=session; if(!s) return;
   recordVerses(s.list);
@@ -917,6 +999,208 @@ function confetti(){
     i.style.animationDuration=(1.8+Math.random()*1.6)+'s'; i.style.animationDelay=(Math.random()*.4)+'s'; i.style.transform=`rotate(${Math.random()*360}deg)`; box.appendChild(i); }
   document.body.appendChild(box); setTimeout(()=>box.remove(),4200);
 }
+
+/* ---------- memorization test: random passages dealt as cards ---------- */
+let TEST=null;
+const $id=id=>document.getElementById(id);
+const plainT=s=>s.replace(DIAC,'');
+const tset=Object.assign({scope:'all',from:1,to:N,count:5,per:5,prompt:'two',weak:false}, settings.test||{});
+function saveT(){ settings.test=tset; store.set('settings',settings); }
+const GROUP_RANGE={}; SECS.forEach(s=>{ const g=GROUP_RANGE[s.g]||(GROUP_RANGE[s.g]=[N,1]); g[0]=Math.min(g[0],s.f); g[1]=Math.max(g[1],s.to); });
+function fillScope(){
+  const sel=$id('tScope'); sel.innerHTML='';
+  const add=(v,t,parent)=>{ const o=document.createElement('option'); o.value=v; o.textContent=t; (parent||sel).appendChild(o); };
+  add('all',`كل المنظومة (1–${N})`);
+  add('usul',`أبواب الأصول (${GROUP_RANGE['أصول'][0]}–${GROUP_RANGE['أصول'][1]})`);
+  add('farsh',`فرش الحروف (${GROUP_RANGE['فرش'][0]}–${GROUP_RANGE['فرش'][1]})`);
+  const g1=document.createElement('optgroup'); g1.label='باب معيّن'; sel.appendChild(g1);
+  SECS.forEach((s,k)=>add('sec:'+k, `${plainT(s.t)} (${s.f}–${s.to})`, g1));
+  add('custom','نطاق أحدده بنفسي…');
+  sel.value=tset.scope; if(sel.value!==tset.scope) sel.value='all';
+}
+function scopeRange(){
+  const v=tset.scope;
+  if(v==='usul') return GROUP_RANGE['أصول'];
+  if(v==='farsh') return GROUP_RANGE['فرش'];
+  if(v.startsWith('sec:')){ const s=SECS[+v.slice(4)]; return [s.f,s.to]; }
+  if(v==='custom'){ const a=Math.max(1,Math.min(N,tset.from|0)), b=Math.max(a,Math.min(N,tset.to|0)); return [a,b]; }
+  return [1,N];
+}
+function pickPositions(lo,hi,P,K,weakFocus){
+  K=Math.max(1,Math.min(K,hi-lo+1));
+  const chosen=[];
+  for(let p=0;p<P;p++){
+    const cands=[], wts=[];
+    for(let s=lo;s<=hi-K+1;s++){
+      if(chosen.some(c=>s<=c+K-1 && s+K-1>=c)) continue;
+      let w=1;
+      if(secOf(s)!==secOf(s+K-1)) w*=.25;                       // prefer passages inside one chapter
+      if(weakFocus){ let k=0; for(let n=s;n<s+K;n++) if(stats[n]&&stats[n].e>0) k++; w*=1+4*k; }
+      cands.push(s); wts.push(w);
+    }
+    if(!cands.length) break;
+    let r=Math.random()*wts.reduce((a,b)=>a+b,0), i=0;
+    while(i<wts.length-1 && (r-=wts[i])>0) i++;
+    chosen.push(cands[i]);
+  }
+  return chosen.map(s=>{ const list=[]; for(let n=s;n<s+K;n++) list.push(n); return {list}; });
+}
+function givenCount(n){
+  const first=V[n-1][0].split(/\s+/).filter(w=>norm(w)).length;
+  if(tset.prompt==='hem') return first;
+  if(tset.prompt==='none') return 0;
+  return Math.min(2, Math.max(1, first-1));
+}
+function startTest(cards){
+  if(!cards){
+    const [lo,hi]=scopeRange();
+    cards=pickPositions(lo,hi,tset.count,tset.per,tset.weak);
+    if(!cards.length){ toast('النطاق صغير جدًا لهذا الاختبار'); return; }
+    if(cards.length<tset.count) toast(`النطاق يتّسع لـ ${cards.length} مواضع فقط`);
+  }
+  const resume=isListening();
+  TEST={cards, i:0, results:[], reveal:false, resume};
+  document.body.classList.add('testing');
+  versesEl.classList.add('card-mode');
+  openTestSheet(false); openSheet(false);
+  goCard(0,false);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function cardHead(){
+  const c=TEST.cards[TEST.i], n0=c.list[0];
+  const h=document.createElement('div'); h.className='card-head';
+  const prompt = tset.prompt==='none' ? `ابدأ من البيت ${n0}` : `${plainT(secOf(n0).t)} · ${c.list.length===1?'بيت واحد':c.list.length===2?'بيتان':c.list.length+' أبيات'}`;
+  h.innerHTML=`<div><b>الموضع ${TEST.i+1} من ${TEST.cards.length}</b><small>${esc(prompt)}</small></div>
+    <div class="ch-btns"><button class="btn small" data-act="reveal">اكشف</button><button class="btn small" data-act="skip">تخطَّ ←</button></div>`;
+  return h;
+}
+function goCard(i, animate=true){
+  if(!TEST) return;
+  const doIt=()=>{
+    TEST.i=i; TEST.reveal=false;
+    if(isListening()) softReset();
+    buildSession(TEST.cards[i].list);
+    session.given=givenCount(TEST.cards[i].list[0]);
+    lastCurVerse=null; align(); paint(); renderDeck();
+    $id('barTitle').textContent='اختبار الحفظ';
+    if(!isListening()) setStatus(session.given ? 'سمّع من حفظك — الكلمات الظاهرة بداية الموضع' : `سمّع من البيت ${TEST.cards[i].list[0]}`);
+    $id('barSub').textContent=`الموضع ${i+1} من ${TEST.cards.length}`;
+    versesEl.classList.remove('out'); void versesEl.offsetWidth; versesEl.classList.add('in');
+    setTimeout(()=>versesEl.classList.remove('in'),600);
+  };
+  if(animate){ versesEl.classList.add('out'); setTimeout(doIt,300); } else doIt();
+}
+function renderDeck(){
+  const d=$id('deck');
+  if(!TEST){ d.classList.add('hidden'); d.innerHTML=''; return; }
+  d.classList.remove('hidden');
+  d.innerHTML=TEST.cards.map((c,k)=>{
+    const r=TEST.results[k]; const g=r?(r.pct>=95?'good':r.pct>=75?'mid':'low'):'';
+    return `<button class="mc ${k===TEST.i?'cur':''} ${r?'done '+g:''}" data-k="${k}" style="--k:${k}" aria-label="الموضع ${k+1}${r?'، '+r.pct+'٪':''}"><b>${k+1}</b><small>${r?r.pct+'%':'البيت '+c.list[0]}</small></button>`;
+  }).join('');
+  const cur=d.querySelector('.mc.cur'); if(cur) cur.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+}
+$id('deck').addEventListener('click',e=>{ const b=e.target.closest('.mc'); if(!b||!TEST) return; const k=+b.dataset.k; if(k!==TEST.i) goCard(k); });
+function cardResult(){
+  const s=session; let ok=0,tot=0; const errs=[];
+  s.W.forEach((w,i)=>{
+    if(i<(s.given||0)) return;
+    tot++; const st=s.status[i];
+    if(s.ok.has(i) || (st==='ok' && !s.hints.has(i))) ok++;
+    else if(s.hints.has(i)) errs.push({w:w.disp,t:'hint',n:w.n});
+    else if(st==='bad') errs.push({w:w.disp,t:'bad',n:w.n,h:s.heard[i]});
+    else if(st==='miss') errs.push({w:w.disp,t:'miss',n:w.n});
+  });
+  const said=s.status.some((st,i)=>i>=(s.given||0) && st!=='pending');
+  return {pct: tot?Math.round(100*ok/tot):0, errs, list:s.list.slice(), complete:s.end>=s.W.length, revealed:TEST.reveal, said};
+}
+function cardDone(complete){
+  if(!TEST) return;
+  const r=cardResult(); TEST.results[TEST.i]=r;
+  recordVerses(session.list); renderDeck();
+  const last = TEST.results.filter(Boolean).length===TEST.cards.length;
+  toast(complete ? `الموضع ${TEST.i+1}: ${r.pct}%${r.pct>=95?' — ما شاء الله':''}` : `تخطّيت الموضع ${TEST.i+1}`);
+  if(last){ setTimeout(()=>testSummary(),800); return; }
+  // next card that has no result yet
+  let k=TEST.i+1; while(k<TEST.cards.length && TEST.results[k]) k++;
+  if(k>=TEST.cards.length){ k=0; while(TEST.results[k]) k++; }
+  setTimeout(()=>goCard(k), complete?900:250);
+}
+function testAction(a){
+  if(!TEST) return;
+  if(a==='reveal'){ TEST.reveal=true; paint(); toast('كُشف الموضع — لن يُحسب حفظًا كاملًا'); }
+  if(a==='skip'){ session.done=true; cardDone(false); }
+}
+function testSummary(){
+  if(!TEST) return;
+  stopListening();
+  const T=TEST; const rows=T.cards.map((c,k)=>({c,k,r:T.results[k]}));
+  const done=rows.filter(x=>x.r && x.r.said);
+  const pct = done.length ? Math.round(done.reduce((a,x)=>a+x.r.pct,0)/done.length) : 0;
+  const hist=store.get('tests',[]); hist.push({t:Date.now(),pct,n:done.length,per:tset.per,scope:$id('tScope').selectedOptions[0]?.textContent||''}); store.set('tests',hist.slice(-50));
+  const labels={bad:'خطأ',miss:'سقط',hint:'تلميح'};
+  const weakCards=rows.filter(x=>!x.r || x.r.pct<100).map(x=>x.c);
+  dialog.innerHTML=`
+    <h2>${!done.length?'لم تُسمِّع أي موضع':pct>=95?'ما شاء الله، حفظ متقن!':pct>=80?'أحسنت، حفظ جيد':'تحتاج مراجعة'}</h2>
+    <div class="ring"><svg viewBox="0 0 120 120"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f8a58"/><stop offset="1" stop-color="#c19237"/></linearGradient></defs>
+      <circle class="bg" cx="60" cy="60" r="50"/><circle class="fg" id="ringFg" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16"/></svg><b id="ringNum">0%</b></div>
+    <div class="ring-cap">متوسط ${done.length} من ${T.cards.length} مواضع</div>
+    <ul class="plist">${rows.map(({c,k,r})=>{ const g=!r?'low':r.pct>=95?'good':r.pct>=75?'mid':'low';
+      const errs=r&&r.errs.length?r.errs.slice(0,6).map(x=>`<span class="vt" style="color:var(--${x.t})">${esc(x.w)}</span> <small>(${labels[x.t]})</small>`).join('، '):'';
+      return `<li style="animation-delay:${k*60}ms"><span class="pp ${g}">${r&&r.said?r.pct+'%':'—'}</span><span class="pt"><b>الموضع ${k+1}: الأبيات ${c.list[0]}–${c.list[c.list.length-1]}</b>${plainT(secOf(c.list[0]).t)}${r&&r.revealed?' · مكشوف':''}${r&&!r.complete?' · لم يكتمل':''}${errs?'<br>'+errs:''}</span></li>`; }).join('')}</ul>
+    <div class="dlg-actions">
+      ${weakCards.length && done.length?'<button class="btn" id="tRetry">أعد المواضع التي فيها أخطاء</button>':''}
+      <button class="btn" id="tNew">اختبار جديد</button>
+      <button class="btn primary" id="tExit">إنهاء</button>
+    </div>`;
+  overlay.classList.remove('hidden');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ const fg=$id('ringFg'); if(fg) fg.style.strokeDashoffset=314.16*(1-pct/100); }));
+  const t0=performance.now(); (function tick(t){ const k=Math.min(1,(t-t0)/1100); const el=$id('ringNum'); if(el) el.textContent=Math.round(pct*(1-Math.pow(1-k,3)))+'%'; if(k<1) requestAnimationFrame(tick); })(t0);
+  if(done.length && pct>=90) confetti();
+  const close=()=>overlay.classList.add('hidden');
+  const rt=$id('tRetry'); if(rt) rt.onclick=()=>{ close(); startTest(weakCards.map(c=>({list:c.list}))); };
+  $id('tNew').onclick=()=>{ close(); startTest(); };
+  $id('tExit').onclick=()=>{ close(); exitTest(); };
+}
+function exitTest(){
+  if(!TEST) return;
+  TEST=null; stopListening(true);
+  document.body.classList.remove('testing'); versesEl.classList.remove('card-mode','in','out');
+  renderDeck(); setRange(settings.from||1, settings.to||5, false);
+  setStatus('اضغط المايك وابدأ · أو اضغط على أي بيت لتبدأ منه');
+}
+/* test setup sheet */
+const testSheet=$id('testSheet');
+function openTestSheet(on){
+  if(on){ fillScope(); syncTestSheet();
+    const h=store.get('tests',[]); const last=h[h.length-1];
+    $id('tHist').textContent = last ? `آخر اختبار: ${last.pct}% في ${last.n} مواضع · ${new Date(last.t).toLocaleDateString('ar')}` : 'يختار لك التطبيق مواضع عشوائية، يظهر أول كل موضع وتكمل من حفظك.'; }
+  testSheet.classList.toggle('on',on); scrim.classList.toggle('on',on || sheet.classList.contains('on'));
+}
+function syncTestSheet(){
+  $id('tCustom').classList.toggle('hidden', tset.scope!=='custom');
+  $id('tFrom').value=tset.from; $id('tTo').value=tset.to;
+  document.querySelectorAll('#tCount button').forEach(b=>b.classList.toggle('on', +b.dataset.v===tset.count));
+  $id('tPer').textContent=tset.per;
+  document.querySelectorAll('#tPrompt button').forEach(b=>b.classList.toggle('on', b.dataset.v===tset.prompt));
+  $id('tWeak').checked=tset.weak;
+}
+$id('tScope').onchange=e=>{ tset.scope=e.target.value; saveT(); syncTestSheet(); };
+$id('tFrom').onchange=e=>{ tset.from=+e.target.value; saveT(); };
+$id('tTo').onchange=e=>{ tset.to=+e.target.value; saveT(); };
+document.querySelectorAll('#tCount button').forEach(b=>b.onclick=()=>{ tset.count=+b.dataset.v; saveT(); syncTestSheet(); });
+$id('tMinus').onclick=()=>{ tset.per=Math.max(1,tset.per-1); saveT(); syncTestSheet(); };
+$id('tPlus').onclick=()=>{ tset.per=Math.min(20,tset.per+1); saveT(); syncTestSheet(); };
+document.querySelectorAll('#tPrompt button').forEach(b=>b.onclick=()=>{ tset.prompt=b.dataset.v; saveT(); syncTestSheet(); });
+$id('tWeak').onchange=e=>{ tset.weak=e.target.checked; saveT(); };
+$id('tStart').onclick=()=>startTest();
+$id('testBtn').onclick=()=>{ if(TEST){ testSummary(); } else openTestSheet(true); };
+$id('openTest').onclick=()=>{ openSheet(false); setTimeout(()=>openTestSheet(true),250); };
+scrim.addEventListener('click',()=>openTestSheet(false));
+{ let sy=null; testSheet.addEventListener('touchstart',e=>{ if(testSheet.scrollTop<=0) sy=e.touches[0].clientY; },{passive:true});
+  testSheet.addEventListener('touchmove',e=>{ if(sy!==null && e.touches[0].clientY-sy>70){ openTestSheet(false); sy=null; } },{passive:true}); }
+/* restart inside a test restarts the current card */
+$id('restartBtn').addEventListener('click',e=>{ if(TEST){ e.stopImmediatePropagation(); goCard(TEST.i); toast('من جديد — الموضع '+(TEST.i+1)); } }, true);
 
 /* ---------- boot ---------- */
 fillSections();
